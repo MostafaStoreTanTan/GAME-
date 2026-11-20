@@ -4,25 +4,23 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
 <title>ROPE BATTLE — Tug of War Quiz Duel</title>
-<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Inter:wght@500;600;700;800&family=Cairo:wght@700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Inter:wght@500;600;700;800;900&family=Cairo:wght@700;800;900&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-:root{--navy:#071226;--navy2:#0b1e3f;--card:#12294d;--blue:#2ea6ff;--blue2:#00d4ff;--red:#ff3b5c;--red2:#ff7a3d;--gold:#ffc93c;--orange:#ff8a00;--green:#22c55e;--muted:#9fb3d6;--line:#223f6e}
+:root{--navy:#071226;--card:#12294d;--blue:#2ea6ff;--blue2:#00d4ff;--red:#ff3b5c;--gold:#ffc93c;--orange:#ff8a00;--green:#22c55e;--muted:#9fb3d6;--line:#223f6e}
 body{font-family:Inter,system-ui,sans-serif;background:radial-gradient(900px 500px at 15% -10%,#1a3a6e 0%,transparent 60%),radial-gradient(900px 500px at 90% 110%,#3a1220 0%,transparent 55%),#071226;color:#fff;min-height:100vh;overflow-x:hidden}
 body.ar{font-family:Cairo,Inter,sans-serif}
 button,input,select,textarea{font:inherit}
-.topbar{max-width:1180px;margin:0 auto;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:10px}
-.logo-mini{display:flex;align-items:center;gap:10px;font-weight:900;letter-spacing:.5px}
-.logo-mini b{font-family:"Baloo 2",Cairo,sans-serif;font-size:22px}
-.logo-mini b i{font-style:normal;color:var(--gold)}
+.topbar{max-width:1180px;margin:0 auto;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.logo{display:flex;align-items:center;gap:10px;font-weight:900}
+.logo b{font-family:"Baloo 2",Cairo,sans-serif;font-size:22px}.logo b i{font-style:normal;color:var(--gold)}
 .badge{font-size:11px;background:#ff8a0022;border:1px solid #ff8a0055;color:#ffd59a;padding:5px 9px;border-radius:999px}
-.controls{display:flex;gap:8px;flex-wrap:wrap}
 .pill{border:1px solid var(--line);background:#0f244a;color:#fff;padding:9px 12px;border-radius:999px;cursor:pointer;font-weight:700;font-size:13px}
 .pill.active{background:var(--gold);color:#1a1000;border-color:var(--gold)}
 .wrap{max-width:1180px;margin:0 auto;padding:6px 16px 30px}
 .screen{display:none}.screen.show{display:block;animation:fade .35s ease}
 @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
-.hero{display:grid;grid-template-columns:1.15fr .85fr;gap:18px;align-items:stretch}
+.hero{display:grid;grid-template-columns:1.12fr .88fr;gap:18px;align-items:stretch}
 @media(max-width:860px){.hero{grid-template-columns:1fr}}
 .card{background:linear-gradient(180deg,#132c52,#0d1f3f);border:1px solid #254a7a;border-radius:24px;padding:22px;box-shadow:0 20px 50px rgba(0,0,0,.35);position:relative;overflow:hidden}
 .card:before{content:"";position:absolute;inset:0;background:radial-gradient(300px 150px at 20% 0%,rgba(0,212,255,.18),transparent 60%);pointer-events:none}
@@ -31,41 +29,39 @@ h1 span{color:var(--gold)}h1 em{font-style:normal;color:var(--blue2)}
 .sub{color:var(--muted);margin:12px 0 16px;line-height:1.6;font-size:15px}
 .chips{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}
 .chip{background:#ffffff14;border:1px solid #ffffff22;padding:7px 10px;border-radius:999px;font-size:12px;font-weight:700}
-label{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#a9bddb;font-weight:800;display:block;margin:14px 0 7px}
-input,select,textarea{width:100%;background:#081a38;border:1px solid #2b4c7e;color:#fff;padding:14px 14px;border-radius:14px;outline:none;font-size:15px}
+label{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:#a9bddb;font-weight:800;display:block;margin:14px 0 7px}
+input,select,textarea{width:100%;background:#081a38;border:1px solid #2b4c7e;color:#fff;padding:14px;border-radius:14px;outline:none;font-size:15px}
 input:focus,select:focus,textarea:focus{border-color:var(--blue2);box-shadow:0 0 0 3px #00d4ff22}
-textarea{min-height:96px;resize:vertical}
+textarea{min-height:100px;resize:vertical}
 .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 @media(max-width:520px){.row{grid-template-columns:1fr}}
 .btn{border:0;cursor:pointer;border-radius:14px;padding:15px 16px;font-weight:900;font-size:15px;display:flex;align-items:center;justify-content:center;gap:9px;width:100%;transition:.15s}
 .btn:active{transform:scale(.98)}
 .btn-blue{background:linear-gradient(180deg,#2ea6ff,#0077ff);color:#fff;box-shadow:0 10px 22px #0077ff44}
-.btn-red{background:linear-gradient(180deg,#ff5a6a,#e11d48);color:#fff;box-shadow:0 10px 22px #ff3b5c33}
+.btn-red{background:linear-gradient(180deg,#ff5a6a,#e11d48);color:#fff}
 .btn-gold{background:linear-gradient(180deg,#ffd34d,#ff8a00);color:#231300}
 .btn-ghost{background:#ffffff12;color:#fff;border:1px solid #ffffff22}
 .btn-green{background:linear-gradient(180deg,#2ee06a,#059669);color:#fff}
 .btn:disabled{opacity:.5;cursor:not-allowed}
-.muted{color:var(--muted);font-size:13px;line-height:1.5}
-.small{font-size:12px}
-.demo{background:#fff7d6;color:#5a3b00;border:1px solid #ffd34d;padding:11px 12px;border-radius:12px;font-size:13px;line-height:1.5;margin-top:12px}
-.demo b{color:#7a3c00}
+.muted{color:var(--muted);font-size:13px;line-height:1.5}.small{font-size:12px}
+.alert{background:#fff7d6;color:#5a3b00;border:1px solid #ffd34d;padding:11px 12px;border-radius:12px;font-size:13px;line-height:1.55;margin-top:12px}
+.alert b{color:#7a3c00}.alert.danger{background:#ffe4e6;color:#7f1d1d;border-color:#fda4af}.alert.ok{background:#dcfce7;color:#14532d;border-color:#86efac}
 .hero-visual{padding:0;overflow:hidden;min-height:380px;display:flex;flex-direction:column}
 .arena-mini{flex:1;background:linear-gradient(90deg,#0a6cff 0 50%,#ff2d55 50% 100%);position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden}
 .arena-mini:after{content:"";position:absolute;left:50%;top:0;bottom:0;width:4px;background:#fff;box-shadow:0 0 0 4px #ffd34d}
 .mini-rope{position:absolute;left:50%;top:50%;width:78%;height:10px;background:#f8d98a;border-radius:999px;transform:translate(-50%,-50%) rotate(-2deg);box-shadow:0 4px 0 #b98a2e}
 .mini-p{position:absolute;top:50%;transform:translateY(-50%);font-size:52px;filter:drop-shadow(0 8px 10px rgba(0,0,0,.4))}
 .legend{display:flex;justify-content:space-between;padding:14px 16px;background:#081a38;font-weight:800;font-size:13px}
-.legend span:last-child{color:#ff8fa0}
 .how{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:16px}
 @media(max-width:700px){.how{grid-template-columns:1fr}}
 .how div{background:#ffffff0d;border:1px solid #ffffff18;border-radius:16px;padding:14px}
-.how b{font-size:28px}.how h3{margin:6px 0 4px;font-size:15px}.how p{color:var(--muted);font-size:13px;line-height:1.5}
-.room-code-big{font-family:"Baloo 2",sans-serif;font-size:58px;letter-spacing:10px;text-align:center;color:var(--gold);background:#081a38;border:2px dashed #ffc93c66;border-radius:18px;padding:10px;margin:12px 0}
+.how b{font-size:26px}.how h3{margin:6px 0 4px;font-size:15px}.how p{color:var(--muted);font-size:13px;line-height:1.5}
+.room-code-big{font-family:"Baloo 2",sans-serif;font-size:54px;letter-spacing:10px;text-align:center;color:var(--gold);background:#081a38;border:2px dashed #ffc93c66;border-radius:18px;padding:10px;margin:12px 0}
 .players{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .pbox{border-radius:16px;padding:14px;text-align:center;border:1px solid #ffffff22}
 .pbox.blue{background:linear-gradient(180deg,#1a6cff,#0a4bc2)}.pbox.red{background:linear-gradient(180deg,#ff4d6d,#c81e3f)}
 .pbox .av{font-size:36px}.pbox h3{margin:4px 0}.pbox p{font-size:12px;opacity:.9}
-.wait{ text-align:center;padding:12px;background:#ffd34d22;border:1px solid #ffd34d44;border-radius:12px;margin:12px 0;font-weight:700}
+.wait{text-align:center;padding:12px;background:#ffd34d22;border:1px solid #ffd34d44;border-radius:12px;margin:12px 0;font-weight:700}
 .progress{height:10px;background:#081a38;border-radius:999px;overflow:hidden;margin:10px 0}
 .progress i{display:block;height:100%;background:linear-gradient(90deg,#00d4ff,#ffc93c);transition:width .5s}
 .scoreboard{display:flex;gap:10px;align-items:stretch;flex-wrap:wrap}
@@ -73,26 +69,25 @@ textarea{min-height:96px;resize:vertical}
 .score.blue{background:#0a4bc2}.score.red{background:#c81e3f}
 .score .av{font-size:32px}.score h3{font-size:16px}.score p{font-size:12px;opacity:.9}
 .score .pts{margin-left:auto;font-family:"Baloo 2";font-size:28px}
-.center-card{text-align:center;min-width:180px}
-.center-card b{font-size:22px}
-.timer{font-family:"Baloo 2";font-size:34px;color:var(--gold)}
-.arena{margin-top:14px;border-radius:22px;overflow:hidden;border:1px solid #254a7a;background:#0a7a3a;position:relative}
-.arena-top{height:210px;background:linear-gradient(90deg,#1a6cff 0 50%,#ff2d55 50% 100%);position:relative;overflow:hidden}
+.center-card{text-align:center;min-width:190px}
+.timer{font-family:"Baloo 2";font-size:32px;color:var(--gold)}
+.arena{margin-top:14px;border-radius:22px;overflow:hidden;border:1px solid #254a7a;position:relative}
+.arena-top{height:212px;background:linear-gradient(90deg,#1a6cff 0 50%,#ff2d55 50% 100%);position:relative;overflow:hidden}
 .grass{position:absolute;left:0;right:0;bottom:0;height:44px;background:linear-gradient(180deg,#2f9e44,#1e6b2e);border-top:3px solid #ffd34d}
 .center-line{position:absolute;left:50%;top:0;bottom:44px;width:6px;background:#fff;transform:translateX(-50%);box-shadow:0 0 0 4px #ffd34d;z-index:2}
 .center-line:after{content:"★ CENTER ★";position:absolute;top:10px;left:50%;transform:translateX(-50%);background:#071226;color:var(--gold);font-size:10px;padding:5px 8px;border-radius:999px;white-space:nowrap}
 .rope-wrap{position:absolute;left:50%;top:118px;width:min(82%,760px);height:14px;transform:translate(-50%,-50%);z-index:3;transition:transform .7s cubic-bezier(.2,.9,.3,1.2)}
 .rope{height:14px;background:repeating-linear-gradient(90deg,#f8d98a 0 18px,#d9a93f 18px 22px);border-radius:999px;box-shadow:0 5px 0 #8a5a12;position:relative}
-.rope:before{content:"🎀";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:22px;z-index:4}
+.rope:before{content:"🎀";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:22px}
 .player{position:absolute;bottom:44px;transform:translateX(-50%);text-align:center;z-index:4;transition:left .7s cubic-bezier(.2,.9,.3,1.2)}
-.player .char{font-size:64px;filter:drop-shadow(0 8px 8px rgba(0,0,0,.4));display:block;animation:pull 0.7s infinite alternate}
-@keyframes pull{from{transform:rotate(-3deg) translateY(0)}to{transform:rotate(3deg) translateY(-3px)}}
+.player .char{font-size:64px;filter:drop-shadow(0 8px 8px rgba(0,0,0,.4));display:block;animation:pull .7s infinite alternate}
+@keyframes pull{from{transform:rotate(-3deg)}to{transform:rotate(3deg) translateY(-3px)}}
 .player .name{font-size:12px;font-weight:900;background:#071226cc;padding:4px 8px;border-radius:999px;white-space:nowrap}
 .win-zone{position:absolute;top:44px;font-size:11px;font-weight:900;background:#071226;padding:6px 8px;border-radius:999px;z-index:5}
 .zone-l{left:8px;color:#7cc4ff}.zone-r{right:8px;color:#ff9aae}
 .arena-bottom{display:flex;gap:10px;padding:12px;background:#081a38;flex-wrap:wrap}
-.stat{flex:1;min-width:120px;background:#12294d;border-radius:12px;padding:10px;text-align:center}
-.stat b{display:block;font-size:20px}.stat span{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+.stat{flex:1;min-width:110px;background:#12294d;border-radius:12px;padding:10px;text-align:center}
+.stat b{display:block;font-size:18px}.stat span{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
 .phase{margin-top:14px}
 .qcard{background:#fff;color:#111;border-radius:18px;padding:18px}
 .qcard h3{font-size:18px}.qcard p{font-size:16px;line-height:1.6;margin:10px 0}
@@ -101,278 +96,501 @@ textarea{min-height:96px;resize:vertical}
 @media(max-width:600px){.choices{grid-template-columns:1fr}}
 .choice{padding:14px;border:2px solid #e5e7eb;border-radius:14px;cursor:pointer;font-weight:800;background:#f8fafc;color:#111;text-align:center}
 .choice:hover{border-color:#0077ff;background:#eff6ff}
-.judge{display:flex;gap:10px;margin-top:12px}
-.judge .btn{flex:1}
+.judge{display:flex;gap:10px;margin-top:12px}.judge .btn{flex:1}
 .win-screen{text-align:center;padding:22px}
-.win-screen .trophy{font-size:84px}
 .toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:#fff;color:#111;padding:12px 16px;border-radius:999px;font-weight:800;box-shadow:0 10px 30px rgba(0,0,0,.4);z-index:99;display:none;max-width:92vw;text-align:center}
 .footer{max-width:1180px;margin:10px auto 20px;padding:0 16px;color:#7fa0c8;font-size:12px;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
 .hidden{display:none!important}
+.diff{display:flex;gap:8px;margin-top:10px}.diff button{flex:1;padding:11px;border-radius:999px;border:1px solid #ffffff33;background:#ffffff10;color:#fff;font-weight:800;cursor:pointer}.diff button.sel{background:var(--gold);color:#231300;border-color:var(--gold)}
+.cfg-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}@media(max-width:600px){.cfg-grid{grid-template-columns:1fr}}
+pre{background:#020617;border:1px solid #1e3a5f;border-radius:12px;padding:12px;overflow:auto;font-size:11px;line-height:1.5;color:#cbd5e1;white-space:pre-wrap}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}.tab{padding:10px 14px;border-radius:999px;border:1px solid #2b4c7e;background:#0f244a;color:#fff;cursor:pointer;font-weight:800}.tab.sel{background:var(--gold);color:#1a1000}
 </style>
 </head>
 <body>
 <header class="topbar">
-<div class="logo-mini"><span style="font-size:26px">🪢</span><b>ROPE <i>BATTLE</i></b><span class="badge" data-i18n="local_demo">LOCAL DEMO • NO BACKEND</span></div>
-<div class="controls">
+<div class="logo"><span style="font-size:26px">🪢</span><b>ROPE <i>BATTLE</i></b><span class="badge" id="netBadge">● LOCAL DEMO — NOT ONLINE</span></div>
+<div style="display:flex;gap:8px;flex-wrap:wrap">
 <button class="pill" id="langBtn">العربية</button>
-<button class="pill" id="soundBtn">🔊 <span data-i18n="sound_on">Sound On</span></button>
-<button class="pill" onclick="showScreen('menu')">🏠 <span data-i18n="menu">Menu</span></button>
+<button class="pill" id="soundBtn">🔊 Sound On</button>
+<button class="pill" onclick="showScreen('menu')">🏠 Menu</button>
+<button class="pill" onclick="showScreen('setup')">⚙️ Firebase Setup</button>
 </div>
 </header>
 
 <main class="wrap">
-<!-- MENU -->
+<!-- 1 MAIN MENU -->
 <section id="screen-menu" class="screen show">
 <div class="hero">
 <div class="card">
-<div class="chip">🏆 <span data-i18n="tagline">TUG-OF-WAR • QUIZ DUEL • 2 PLAYERS</span></div>
+<div class="chip">🏆 TUG-OF-WAR • QUIZ DUEL • 2 PLAYERS • QUESTION MASTER</div>
 <h1>ROPE<br><span>BATTLE</span> <em>🪢</em></h1>
-<p class="sub" data-i18n="hero_sub">Win a challenge, pull the rope. The Question Master writes the question — the opponent must answer. Outsmart, out-pull, and drag your rival across the center line!</p>
-<div class="chips"><span class="chip">👥 2 Players</span><span class="chip">✍️ Question Master Mode</span><span class="chip">🧮 Quick Math Mode</span><span class="chip">📱 Mobile Ready</span></div>
-<label data-i18n="your_name">Your Player Name</label>
-<input id="playerName" placeholder="e.g. Adam / آدم" maxlength="20" value="">
-<label data-i18n="mode_label">Game Mode</label>
-<select id="gameMode"><option value="master" data-i18n="mode_master">✍️ Question Master (Write Your Own Questions)</option><option value="math" data-i18n="mode_math">🧮 Quick Math (Auto Questions)</option></select>
-<div class="row" style="margin-top:14px">
-<div><label data-i18n="win_in">Rope Pulls To Win</label><select id="winTarget"><option value="3">3 — Quick ⚡</option><option value="5" selected>5 — Classic 🏆</option><option value="7">7 — Epic 🔥</option></select></div>
-<div><label data-i18n="timer_label">Answer Timer (seconds)</label><select id="timerLen"><option value="30">30s</option><option value="45" selected>45s</option><option value="60">60s</option><option value="0">No timer</option></select></div>
+<p class="sub">Win a challenge, pull the rope. The Question Master writes the question — the opponent must answer. The Master judges — <b style="color:#fff">never auto-judged</b>. Outsmart, out-pull, drag your rival across the center line!</p>
+<div class="chips"><span class="chip">👥 2 Players</span><span class="chip">✍️ Question Master</span><span class="chip">🧮 Quick Math</span><span class="chip">🔥 Easy → Medium → Hard</span></div>
+<label>Your Player Name</label>
+<input id="playerName" placeholder="e.g. Adam / آدم" maxlength="20">
+<label>Connection Mode</label>
+<div class="tabs" id="modeTabs">
+<button type="button" class="tab sel" data-mode="local" onclick="setConnMode('local')">📱 Local Demo (Same Device)</button>
+<button type="button" class="tab" data-mode="online" onclick="setConnMode('online')">🌐 Online (Firebase)</button>
+</div>
+<div class="alert" id="modeAlert">📱 <b>Local Demo:</b> Rooms are simulated on this device only. Play hot-seat — pass the device back and forth. This does <b>not</b> sync two phones.</div>
+<label>Game Mode</label>
+<select id="gameMode"><option value="master">✍️ Question Master (Write Your Own Questions)</option><option value="math">🧮 Quick Math (Auto Questions)</option></select>
+<div class="row">
+<div><label>Rope Pulls To Win</label><select id="winTarget"><option value="3">3 — Quick ⚡</option><option value="5" selected>5 — Classic 🏆</option><option value="7">7 — Epic 🔥</option></select></div>
+<div><label>Answer Timer</label><select id="timerLen"><option value="30">30s</option><option value="45" selected>45s</option><option value="60">60s</option><option value="0">No timer</option></select></div>
 </div>
 <div class="row" style="margin-top:14px">
-<button class="btn btn-blue" onclick="createRoom()">➕ <span data-i18n="create_room">Create Room</span></button>
-<button class="btn btn-gold" onclick="goJoin()">🚪 <span data-i18n="join_room">Join Room</span></button>
+<button class="btn btn-blue" onclick="createRoom()">➕ Create Room</button>
+<button class="btn btn-gold" onclick="goJoin()">🚪 Join Room</button>
 </div>
-<div class="demo">⚠️ <b data-i18n="demo_title">Local Demo:</b> <span data-i18n="demo_text">Rooms are simulated on this device only. Share the code with a friend on the SAME device / browser to play hot-seat. Real online sync needs a backend (Firebase / WebSocket) — not included.</span></div>
-<p class="muted" style="margin-top:10px" data-i18n="tip">Tip: Player 1 creates, Player 2 joins with the code, then pass the device back and forth.</p>
+<button class="btn btn-ghost" style="margin-top:10px" onclick="quickDemo()">▶️ Play Instant Demo (No Code)</button>
+<p class="muted" style="margin-top:10px">Online needs Firebase config in ⚙️ Firebase Setup. Until you paste valid config + deploy the Rules below, online is <b>not</b> operational.</p>
 </div>
 <div class="card hero-visual">
 <div class="arena-mini"><div class="mini-rope"></div><div class="mini-p" style="left:16%">🧑‍🦰</div><div class="mini-p" style="right:16%;left:auto">🧑‍🦱</div><div style="position:absolute;top:14px;background:#071226;padding:7px 12px;border-radius:999px;font-weight:900;font-size:12px">⭐ PULL TO WIN ⭐</div></div>
 <div class="legend"><span>🔵 BLUE TEAM</span><span>ROUND 1 • CENTER LINE</span><span>🔴 RED TEAM</span></div>
 <div style="padding:16px">
 <div class="how">
-<div><b>1️⃣</b><h3 data-i18n="how1t">Create or Join</h3><p data-i18n="how1p">Get a 5-digit code and invite player 2.</p></div>
-<div><b>✍️</b><h3 data-i18n="how2t">Master Writes</h3><p data-i18n="how2p">Winner becomes Question Master and writes a question.</p></div>
-<div><b>🪢</b><h3 data-i18n="how3t">Pull & Win</h3><p data-i18n="how3p">Correct answer pulls the rope. First to the zone wins!</p></div>
+<div><b>1️⃣</b><h3>Create or Join</h3><p>Get a 5-digit code and invite Player 2.</p></div>
+<div><b>✍️</b><h3>Master Writes</h3><p>Winner becomes Question Master and writes a question.</p></div>
+<div><b>🪢</b><h3>Pull &amp; Win</h3><p>Correct = answerer pulls. Wrong = Master pulls.</p></div>
 </div>
-<button class="btn btn-ghost" style="margin-top:14px" onclick="quickDemo()">▶️ <span data-i18n="demo_play">Play Instant Demo (No Code)</span></button>
+<div class="card" style="margin-top:14px;padding:14px"><b>⚖️ The Golden Rule</b><p class="muted" style="margin-top:6px">Manually written answers are <b style="color:#fff">never</b> auto-judged. Only the current Question Master can press CORRECT / WRONG. The app enforces this by player slot (P1/P2) locally, and by Firebase Rules online.</p></div>
 </div>
 </div>
+</div>
+</section>
+
+<!-- FIREBASE SETUP -->
+<section id="screen-setup" class="screen">
+<div class="card" style="max-width:820px;margin:0 auto">
+<h2>⚙️ Firebase Setup — Required for Real Online Play</h2>
+<p class="sub">Do <b style="color:#fff">not</b> invent credentials. Get these exact values from Firebase Console → Project Settings → Your apps → Web app. Paste them below, click Save &amp; Connect. They are stored only in this browser (localStorage).</p>
+<div class="alert danger"><b>Current status: <span id="fbStatus">NOT CONFIGURED — online multiplayer is OFF</span></b><br>Until status shows CONNECTED, use Local Demo. A room code alone does not sync two devices.</div>
+<div class="cfg-grid">
+<div><label>apiKey</label><input id="cfg_apiKey" placeholder="AIza..."></div>
+<div><label>authDomain</label><input id="cfg_authDomain" placeholder="your-project.firebaseapp.com"></div>
+<div><label>databaseURL *</label><input id="cfg_databaseURL" placeholder="https://your-project-default-rtdb.firebaseio.com"></div>
+<div><label>projectId</label><input id="cfg_projectId" placeholder="your-project"></div>
+<div><label>storageBucket</label><input id="cfg_storageBucket" placeholder="your-project.appspot.com"></div>
+<div><label>messagingSenderId</label><input id="cfg_messagingSenderId" placeholder="1234567890"></div>
+<div><label>appId</label><input id="cfg_appId" placeholder="1:123...:web:abc"></div>
+<div><label>measurementId (optional)</label><input id="cfg_measurementId" placeholder="G-..."></div>
+</div>
+<p class="muted" style="margin-top:8px">* databaseURL is required for Realtime Database. Enable <b style="color:#fff">Realtime Database</b> + <b style="color:#fff">Anonymous Auth</b> in Firebase Console.</p>
+<div class="row" style="margin-top:12px"><button class="btn btn-green" onclick="saveFirebaseConfig()">💾 Save &amp; Connect to Firebase</button><button class="btn btn-ghost" onclick="clearFirebaseConfig()">🗑️ Clear Config</button></div>
+<button class="btn btn-blue" style="margin-top:10px" onclick="testFirebase()">🔌 Test Connection</button>
+<h3 style="margin-top:18px">📜 Firebase Realtime Database Security Rules — Paste in Console → Realtime Database → Rules</h3>
+<p class="muted">These rules are the security layer: only a room member can read/write that room, only the current Master can write a judgment, and only the answerer can write their answer. Deploy them before testing online.</p>
+<pre id="rulesPre"></pre>
+<button class="btn btn-ghost" onclick="copyRules()">📋 Copy Rules</button>
+<h3 style="margin-top:18px">✅ Checklist to go live</h3>
+<ol style="margin:12px 0 0 18px;line-height:1.8;color:#cbd5e1;font-size:14px">
+<li>Create Firebase project → Add Web App → copy config above.</li>
+<li>Build → Realtime Database → Create Database → Start in test mode, then replace Rules with the block above → Publish.</li>
+<li>Build → Authentication → Sign-in method → Enable <b>Anonymous</b>.</li>
+<li>Open this file on <b>two devices</b>, paste the <b>same</b> config on both, Create on Phone A, Join with code on Phone B.</li>
+<li>Verify rope, question, answer &amp; judgment sync on both screens.</li>
+</ol>
+<button class="btn btn-ghost" style="margin-top:14px" onclick="showScreen('menu')">← Back to Menu</button>
 </div>
 </section>
 
 <!-- JOIN -->
 <section id="screen-join" class="screen">
 <div style="max-width:560px;margin:0 auto" class="card">
-<h2 data-i18n="join_title">🚪 Join a Room</h2><p class="muted" data-i18n="join_sub">Enter the 5-digit code from the host. In this local demo, join the room created on this device.</p>
-<label data-i18n="room_code">Room Code (5 digits)</label>
-<input id="joinCode" placeholder="12345" maxlength="5" inputmode="numeric">
-<label data-i18n="your_name2">Your Name (Player 2)</label>
-<input id="joinName" placeholder="e.g. Salma" maxlength="20">
+<h2>🚪 Join a Room</h2><p class="muted" id="joinSub">Enter the 5-digit code from the host.</p>
+<label>Room Code (5 digits)</label><input id="joinCode" placeholder="12345" maxlength="5" inputmode="numeric">
+<label>Your Name (Player 2)</label><input id="joinName" placeholder="e.g. Salma" maxlength="20">
 <div id="joinError" class="hidden" style="background:#ffe4e6;color:#881337;padding:10px;border-radius:12px;margin-top:12px;font-weight:700;font-size:13px"></div>
-<button class="btn btn-gold" style="margin-top:14px" onclick="joinRoom()">✅ <span data-i18n="join_btn">Join Room & Play</span></button>
-<button class="btn btn-ghost" style="margin-top:10px" onclick="showScreen('menu')">← <span data-i18n="back">Back</span></button>
+<button class="btn btn-gold" style="margin-top:14px" onclick="joinRoom()">✅ Join Room &amp; Play</button>
+<button class="btn btn-ghost" style="margin-top:10px" onclick="showScreen('menu')">← Back</button>
 <p class="muted" style="margin-top:12px" id="activeRoomHint"></p>
 </div>
 </section>
 
-<!-- LOBBY -->
+<!-- LOBBY / WAITING -->
 <section id="screen-lobby" class="screen">
 <div style="max-width:680px;margin:0 auto" class="card">
-<h2 style="text-align:center" data-i18n="lobby_title">🏠 Room Lobby</h2>
-<p class="muted" style="text-align:center" data-i18n="lobby_sub">Share this code with Player 2</p>
+<h2 style="text-align:center">🏠 Room Lobby — Waiting Room</h2>
+<p class="muted" style="text-align:center" id="lobbyModeLine">Share this code with Player 2</p>
 <div class="room-code-big" id="roomCodeDisplay">-----</div>
-<div style="display:flex;gap:10px"><button class="btn btn-ghost" onclick="copyCode()">📋 <span data-i18n="copy">Copy Code</span></button><button class="btn btn-ghost" onclick="shareCode()">🔗 <span data-i18n="share">Share</span></button></div>
+<div style="display:flex;gap:10px"><button class="btn btn-ghost" onclick="copyCode()">📋 Copy Code</button><button class="btn btn-ghost" onclick="shareCode()">🔗 Share</button></div>
 <div class="players" style="margin-top:16px">
-<div class="pbox blue"><div class="av">🧑‍🦰</div><h3 id="lobbyP1">Player 1</h3><p>🔵 <span data-i18n="host">HOST • READY</span></p></div>
-<div class="pbox red" id="lobbyP2Box" style="opacity:.6"><div class="av">👤</div><h3 id="lobbyP2">Waiting…</h3><p data-i18n="waiting_p2">Waiting for Player 2…</p></div>
+<div class="pbox blue"><div class="av">🧑‍🦰</div><h3 id="lobbyP1">Player 1</h3><p>🔵 HOST • READY</p></div>
+<div class="pbox red" id="lobbyP2Box" style="opacity:.6"><div class="av">👤</div><h3 id="lobbyP2">Waiting…</h3><p>Waiting for Player 2…</p></div>
 </div>
-<div class="wait" id="waitMsg">⏳ <span data-i18n="waiting">Waiting for second player to join…</span></div>
+<div class="wait" id="waitMsg">⏳ Waiting for second player to join…</div>
 <div class="progress"><i id="lobbyProgress" style="width:50%"></i></div>
-<button class="btn btn-green" id="startBtn" disabled onclick="startGame()">🚀 <span data-i18n="start_game">Start Game — Both Players Ready</span></button>
-<button class="btn btn-ghost" style="margin-top:10px" onclick="showScreen('menu')">← <span data-i18n="leave">Leave Room</span></button>
+<div class="alert" id="lobbyAlert"></div>
+<button class="btn btn-green" id="startBtn" disabled onclick="startGame()">🚀 Start Game — Both Players Ready</button>
+<button class="btn btn-ghost" style="margin-top:10px" onclick="leaveRoom()">← Leave Room</button>
 </div>
 </section>
 
-<!-- GAME -->
+<!-- GAME ARENA -->
 <section id="screen-game" class="screen">
 <div class="scoreboard">
-<div class="score blue"><span class="av">🧑‍🦰</span><div><h3 id="gP1Name">Player 1</h3><p>🔵 <span data-i18n="pulls">Pulls</span>: <b id="gP1Score">0</b> / <span class="winNeed">5</span></p></div><div class="pts" id="gP1Pts">0</div></div>
-<div class="score center-card"><div><span data-i18n="round">ROUND</span> <b id="roundNum">1</b></div><div class="timer" id="timer">⏱ 45</div><div class="small" id="turnLabel">Question Master: Player 1</div></div>
-<div class="score red"><span class="av">🧑‍🦱</span><div><h3 id="gP2Name">Player 2</h3><p>🔴 <span data-i18n="pulls">Pulls</span>: <b id="gP2Score">0</b> / <span class="winNeed">5</span></p></div><div class="pts" id="gP2Pts">0</div></div>
+<div class="score blue"><span class="av">🧑‍🦰</span><div><h3 id="gP1Name">Player 1</h3><p>🔵 Pulls: <b id="gP1Score">0</b> / <span class="winNeed">5</span> • <span id="p1Role">—</span></p></div><div class="pts" id="gP1Pts">0</div></div>
+<div class="score center-card"><div>ROUND <b id="roundNum">1</b> • <span id="diffLabel">🟢 EASY</span></div><div class="timer" id="timer">⏱ 45</div><div class="small" id="turnLabel">Question Master: Player 1</div><div class="small" id="syncLabel">● LOCAL</div></div>
+<div class="score red"><span class="av">🧑‍🦱</span><div><h3 id="gP2Name">Player 2</h3><p>🔴 Pulls: <b id="gP2Score">0</b> / <span class="winNeed">5</span> • <span id="p2Role">—</span></p></div><div class="pts" id="gP2Pts">0</div></div>
 </div>
-
-<div class="arena">
-<div class="arena-top">
+<div class="arena"><div class="arena-top">
 <span class="win-zone zone-l">◀ WIN ZONE</span><span class="win-zone zone-r">WIN ZONE ▶</span>
 <div class="center-line"></div>
 <div class="player" id="player1El" style="left:22%"><span class="char">🧑‍🦰</span><span class="name" id="arenaP1">P1</span></div>
 <div class="player" id="player2El" style="left:78%"><span class="char">🧑‍🦱</span><span class="name" id="arenaP2">P2</span></div>
 <div class="rope-wrap" id="ropeWrap"><div class="rope"></div></div>
-<div class="grass"></div>
-</div>
+<div class="grass"></div></div>
 <div class="arena-bottom">
-<div class="stat"><b id="ropePosLabel">0</b><span data-i18n="rope_pos">Rope Position</span></div>
-<div class="stat"><b id="modeLabel">✍️ Master</b><span data-i18n="mode">Mode</span></div>
-<div class="stat"><b id="codeLabel">-----</b><span data-i18n="room">Room</span></div>
-<div class="stat"><b id="streakLabel">—</b><span data-i18n="last_result">Last Result</span></div>
-</div>
-</div>
-
+<div class="stat"><b id="ropePosLabel">0</b><span>Rope Position</span></div>
+<div class="stat"><b id="modeLabel">✍️ Master</b><span>Mode</span></div>
+<div class="stat"><b id="codeLabel">-----</b><span>Room</span></div>
+<div class="stat"><b id="streakLabel">—</b><span>Last Result</span></div>
+</div></div>
 <div class="phase" id="phaseBox"></div>
-<div style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap"><button class="btn btn-ghost" style="flex:1" onclick="switchTurn()">🔄 <span data-i18n="pass_device">Pass Device / Switch Turn</span></button><button class="btn btn-ghost" style="flex:1" onclick="quitGame()">🏳️ <span data-i18n="quit">Quit to Menu</span></button></div>
+<div style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap"><button class="btn btn-ghost" style="flex:1" onclick="quitGame()">🏳️ Quit to Menu</button></div>
 </section>
 
-<!-- WIN -->
+<!-- VICTORY / REMATCH -->
 <section id="screen-win" class="screen">
 <div style="max-width:620px;margin:0 auto" class="card win-screen">
-<div class="trophy">🏆</div><h1 style="font-size:42px" id="winnerName">WINNER!</h1><p class="sub" id="winnerText" style="text-align:center"></p>
+<div style="font-size:84px">🏆</div><h1 style="font-size:42px" id="winnerName">WINNER!</h1><p class="sub" id="winnerText" style="text-align:center"></p>
 <div style="font-size:56px;margin:10px">🎉 🪢 🎉</div>
-<div class="row"><button class="btn btn-gold" onclick="rematch()">🔁 <span data-i18n="rematch">Rematch</span></button><button class="btn btn-blue" onclick="showScreen('menu')">🏠 <span data-i18n="menu">Menu</span></button></div>
+<div class="row"><button class="btn btn-gold" onclick="rematch()">🔁 Rematch</button><button class="btn btn-blue" onclick="showScreen('menu')">🏠 Menu</button></div>
+<p class="muted" style="margin-top:12px">Rematch resets rope, scores and round — same room, same players. Host starts a new match.</p>
 </div>
 </section>
 </main>
-<footer class="footer"><span>🪢 ROPE BATTLE • Made with HTML • CSS • Vanilla JS • Web Audio</span><span data-i18n="footer">Local demo — no real online sync</span></footer>
+<footer class="footer"><span>🪢 ROPE BATTLE • HTML • CSS • Vanilla JS • Firebase Realtime Database (when configured)</span><span>Local demo ≠ online sync</span></footer>
 <div class="toast" id="toast"></div>
 
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 <script>
-// ===== STATE =====
-let lang='en', soundOn=true, room=null, game=null, timerInt=null, timeLeft=45;
+/* ================= ROPE BATTLE — ARCHITECTURE =================
+STATE MODEL (shared, same shape locally + in Firebase):
+rooms/{code} = {
+  code, mode:'master'|'math', winTarget, timerLen, status:'lobby'|'playing'|'finished',
+  players:{ p1:{name,uid}, p2:{name,uid} },
+  game:{ rope, score1, score2, round, master:0|1, difficulty:'Easy'|'Medium'|'Hard',
+         phase:'write'|'answer'|'judge'|'waiting', currentQ:{text,cat,difficulty,by},
+         currentAns:{text,by,at}, lastResult }
+}
+SECURITY: client checks mySlot + master slot before writing judgment/answer.
+Firebase Rules (see setup screen) enforce the same server-side.
+LOCAL MODE: same state object lives in memory; both "players" are hot-seat on one device.
+ONLINE MODE: state lives at rooms/{code}; onValue() syncs both devices in real time.
+================================================================ */
 const $=id=>document.getElementById(id);
+let lang='en', soundOn=true, connMode='local';
+let room=null, game=null, mySlot=null, myUid='local-'+Math.random().toString(36).slice(2,9);
+let timerInt=null, timeLeft=45, fbApp=null, fbDb=null, fbAuth=null, roomRef=null, roomUnsub=null;
+let localRoom=null; // local-demo room store
+
 const i18n={
-en:{local_demo:"LOCAL DEMO • NO BACKEND",sound_on:"Sound On",menu:"Menu",tagline:"TUG-OF-WAR • QUIZ DUEL • 2 PLAYERS",hero_sub:"Win a challenge, pull the rope. The Question Master writes the question — the opponent must answer. Outsmart, out-pull, and drag your rival across the center line!",your_name:"Your Player Name",mode_label:"Game Mode",mode_master:"✍️ Question Master (Write Your Own Questions)",mode_math:"🧮 Quick Math (Auto Questions)",win_in:"Rope Pulls To Win",timer_label:"Answer Timer (seconds)",create_room:"Create Room",join_room:"Join Room",demo_title:"Local Demo:",demo_text:"Rooms are simulated on this device only. Share the code with a friend on the SAME device / browser to play hot-seat. Real online sync needs a backend (Firebase / WebSocket) — not included.",tip:"Tip: Player 1 creates, Player 2 joins with the code, then pass the device back and forth.",how1t:"Create or Join",how1p:"Get a 5-digit code and invite player 2.",how2t:"Master Writes",how2p:"Winner becomes Question Master and writes a question.",how3t:"Pull & Win",how3p:"Correct answer pulls the rope. First to the zone wins!",demo_play:"Play Instant Demo (No Code)",join_title:"🚪 Join a Room",join_sub:"Enter the 5-digit code from the host. In this local demo, join the room created on this device.",room_code:"Room Code (5 digits)",your_name2:"Your Name (Player 2)",join_btn:"Join Room & Play",back:"Back",lobby_title:"🏠 Room Lobby",lobby_sub:"Share this code with Player 2",copy:"Copy Code",share:"Share",host:"HOST • READY",waiting_p2:"Waiting for Player 2…",waiting:"Waiting for second player to join…",start_game:"Start Game — Both Players Ready",leave:"Leave Room",pulls:"Pulls",round:"ROUND",mode:"Mode",room:"Room",last_result:"Last Result",rope_pos:"Rope Position",pass_device:"Pass Device / Switch Turn",quit:"Quit to Menu",rematch:"Rematch",footer:"Local demo — no real online sync",write_q:"✍️ Write Your Question",you_are_master:"You are the QUESTION MASTER",q_placeholder:"Write a tricky question for your opponent…",category:"Category (optional)",submit_q:"Send Question to Opponent →",answer_q:"🧠 Answer the Question",from_master:"Question from",your_answer:"Your Answer",submit_a:"Submit Answer",waiting_judge:"⏳ Waiting for Question Master to judge your answer…",judge_title:"⚖️ Judge the Answer",opponent_answered:"Opponent answered:",correct:"✅ CORRECT ANSWER",wrong:"❌ WRONG ANSWER",math_title:"🧮 Quick Math Challenge",math_sub:"Solve it! First to answer correctly pulls the rope.",check:"Check Answer",correct_pull:"✅ Correct! Rope pulls toward you!",wrong_pull:"❌ Wrong! Rope pulls toward opponent!",master_keeps:"Master keeps the crown — write another question!",new_master:"New Question Master!",turn_master:"Question Master:"},
-ar:{local_demo:"نسخة محلية • بدون خادم",sound_on:"الصوت",menu:"القائمة",tagline:"شد الحبل • تحدي أسئلة • لاعبان",hero_sub:"اربح التحدي واسحب الحبل. سيد الأسئلة يكتب السؤال — والخصم يجب أن يجيب. تفوّق واسحب خصمك عبر الخط الأوسط!",your_name:"اسم اللاعب",mode_label:"وضع اللعب",mode_master:"✍️ سيد الأسئلة (اكتب أسئلتك بنفسك)",mode_math:"🧮 رياضيات سريعة (أسئلة تلقائية)",win_in:"عدد السحبات للفوز",timer_label:"مؤقت الإجابة (ثواني)",create_room:"إنشاء غرفة",join_room:"الانضمام لغرفة",demo_title:"نسخة محلية:",demo_text:"الغرف محاكاة على هذا الجهاز فقط. العب مع صديق على نفس الجهاز بالتناوب. المزامنة الحقيقية تحتاج خادماً.",tip:"نصيحة: اللاعب 1 ينشئ، اللاعب 2 ينضم بالرمز، ثم تناوبوا على الجهاز.",how1t:"أنشئ أو انضم",how1p:"احصل على رمز من 5 أرقام وادعُ اللاعب 2.",how2t:"السيد يكتب",how2p:"الفائز يصبح سيد الأسئلة ويكتب سؤالاً.",how3t:"اسحب واربح",how3p:"الإجابة الصحيحة تسحب الحبل. أول من يصل للمنطقة يفوز!",demo_play:"العب عرضاً فورياً (بدون رمز)",join_title:"🚪 الانضمام لغرفة",join_sub:"أدخل الرمز المكون من 5 أرقام من المضيف.",room_code:"رمز الغرفة (5 أرقام)",your_name2:"اسمك (اللاعب 2)",join_btn:"انضم والعب",back:"رجوع",lobby_title:"🏠 ردهة الغرفة",lobby_sub:"شارك هذا الرمز مع اللاعب 2",copy:"نسخ الرمز",share:"مشاركة",host:"المضيف • جاهز",waiting_p2:"بانتظار اللاعب 2…",waiting:"بانتظار اللاعب الثاني للانضمام…",start_game:"ابدأ اللعبة — اللاعبان جاهزان",leave:"مغادرة الغرفة",pulls:"سحبات",round:"جولة",mode:"الوضع",room:"الغرفة",last_result:"آخر نتيجة",rope_pos:"موضع الحبل",pass_device:"تمرير الجهاز / تبديل الدور",quit:"خروج للقائمة",rematch:"إعادة المباراة",footer:"نسخة محلية — بدون مزامنة حقيقية",write_q:"✍️ اكتب سؤالك",you_are_master:"أنت سيد الأسئلة",q_placeholder:"اكتب سؤالاً صعباً لخصمك…",category:"الفئة (اختياري)",submit_q:"أرسل السؤال للخصم →",answer_q:"🧠 أجب على السؤال",from_master:"سؤال من",your_answer:"إجابتك",submit_a:"إرسال الإجابة",waiting_judge:"⏳ بانتظار سيد الأسئلة للحكم على إجابتك…",judge_title:"⚖️ احكم على الإجابة",opponent_answered:"أجاب الخصم:",correct:"✅ إجابة صحيحة",wrong:"❌ إجابة خاطئة",math_title:"🧮 تحدي رياضيات سريع",math_sub:"حلها! أول من يجيب صحيحاً يسحب الحبل.",check:"تحقق من الإجابة",correct_pull:"✅ صحيح! الحبل يسحب نحوك!",wrong_pull:"❌ خطأ! الحبل يسحب نحو الخصم!",master_keeps:"السيد يحتفظ بالتاج — اكتب سؤالاً آخر!",new_master:"سيد أسئلة جديد!",turn_master:"سيد الأسئلة:"}
+en:{sound_on:"Sound On",menu:"Menu"},
+ar:{sound_on:"الصوت",menu:"القائمة"}
 };
-function t(k){return (i18n[lang]&&i18n[lang][k])||i18n.en[k]||k}
+function t(k){return (i18n[lang]&&i18n[lang][k])||k}
 function applyLang(){
   document.body.classList.toggle('ar',lang==='ar'); document.documentElement.lang=lang; document.documentElement.dir=lang==='ar'?'rtl':'ltr';
-  document.querySelectorAll('[data-i18n]').forEach(el=>{let k=el.dataset.i18n; if(i18n[lang][k]) el.textContent=i18n[lang][k]});
   $('langBtn').textContent=lang==='en'?'العربية':'English';
-  document.querySelectorAll('#gameMode option').forEach(o=>{o.textContent=t(o.dataset.i18n)});
   if(game) renderPhase();
 }
-$('langBtn').onclick=()=>{lang=lang==='en'?'ar':'en'; applyLang(); play(600)};
-$('soundBtn').onclick=()=>{soundOn=!soundOn; $('soundBtn').innerHTML=(soundOn?'🔊 ':'🔇 ')+'<span>'+t('sound_on')+'</span>'; if(soundOn) play(600)};
-// ===== AUDIO =====
+$('langBtn').onclick=()=>{lang=lang==='en'?'ar':'en';applyLang();play(600)};
+$('soundBtn').onclick=()=>{soundOn=!soundOn;$('soundBtn').textContent=(soundOn?'🔊 ':'🔇 ')+'Sound On';if(soundOn)play(600)};
 let audioCtx=null;
-function play(freq=520,dur=0.12,type='sine'){ if(!soundOn) return; try{ audioCtx=audioCtx||new (window.AudioContext||window.webkitAudioContext)(); let o=audioCtx.createOscillator(),g=audioCtx.createGain(); o.type=type;o.frequency.value=freq; g.gain.setValueAtTime(.15,audioCtx.currentTime); g.gain.exponentialRampToValueAtTime(.001,audioCtx.currentTime+dur); o.connect(g); g.connect(audioCtx.destination); o.start(); o.stop(audioCtx.currentTime+dur);}catch(e){} }
-function playWin(){ [523,659,784,1046].forEach((f,i)=>setTimeout(()=>play(f,.25,'triangle'),i*140)) }
-function toast(msg){ let el=$('toast'); el.textContent=msg; el.style.display='block'; setTimeout(()=>el.style.display='none',2800); }
-function showScreen(name){ document.querySelectorAll('.screen').forEach(s=>s.classList.remove('show')); $('screen-'+name).classList.add('show'); window.scrollTo({top:0,behavior:'smooth'}); }
-function getName(fallback){ let v=$(fallback).value.trim(); return v|| (lang==='ar'?'لاعب':'Player'); }
-// ===== ROOMS (LOCAL SIMULATION) =====
-function createRoom(){
-  let name=getName('playerName');
-  let code=String(Math.floor(10000+Math.random()*90000));
-  room={code, host:name, p1:name, p2:null, mode:$('gameMode').value, winTarget:parseInt($('winTarget').value), timerLen:parseInt($('timerLen').value)};
-  $('roomCodeDisplay').textContent=code; $('lobbyP1').textContent=name+' (You)'; $('lobbyP2').textContent=lang==='ar'?'بانتظار…':'Waiting…'; $('lobbyP2Box').style.opacity=.6; $('startBtn').disabled=true; $('waitMsg').style.display='block'; $('lobbyProgress').style.width='50%';
-  $('activeRoomHint').textContent=''; showScreen('lobby'); play(700); toast('Room '+code+' created • '+ (lang==='ar'?'شارك الرمز':'Share the code'));
+function play(f=520,d=.12,type='sine'){if(!soundOn)return;try{audioCtx=audioCtx||new (window.AudioContext||window.webkitAudioContext)();let o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type=type;o.frequency.value=f;g.gain.setValueAtTime(.15,audioCtx.currentTime);g.gain.exponentialRampToValueAtTime(.001,audioCtx.currentTime+d);o.connect(g);g.connect(audioCtx.destination);o.start();o.stop(audioCtx.currentTime+d);}catch(e){}}
+function playWin(){[523,659,784,1046].forEach((f,i)=>setTimeout(()=>play(f,.25,'triangle'),i*140))}
+function toast(m){let el=$('toast');el.textContent=m;el.style.display='block';setTimeout(()=>el.style.display='none',3000)}
+function showScreen(n){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('show'));$('screen-'+n).classList.add('show');window.scrollTo({top:0,behavior:'smooth'})}
+function esc(s){return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function setConnMode(m){connMode=m;document.querySelectorAll('#modeTabs .tab').forEach(b=>b.classList.toggle('sel',b.dataset.mode===m));
+  $('modeAlert').innerHTML=m==='local'?'📱 <b>Local Demo:</b> Rooms are simulated on this device only. Play hot-seat — pass the device back and forth. This does <b>not</b> sync two phones.':'🌐 <b>Online (Firebase):</b> Requires valid Firebase config + deployed Rules + Anonymous Auth. If not configured, creating/joining online will show an error and fall back to Local Demo.';}
+
+/* ---------- FIREBASE CONFIG ---------- */
+const RULES=`{
+  "rules": {
+    "rooms": {
+      "$code": {
+        ".read": "auth != null && (data.child('players/p1/uid').val() === auth.uid || data.child('players/p2/uid').val() === auth.uid || !data.exists())",
+        ".write": "auth != null",
+        "players": { ".validate": "newData.hasChildren(['p1'])" },
+        "game": {
+          "currentAns": { ".write": "auth != null && auth.uid === newData.child('byUid').val()" },
+          "judgment": { ".write": "auth != null && auth.uid === root.child('rooms/'+$code+'/players/'+(root.child('rooms/'+$code+'/game/master').val()===0?'p1':'p2')+'/uid').val()" }
+        }
+      }
+    }
+  }
 }
-function goJoin(){ if(room){ $('activeRoomHint').textContent=(lang==='ar'?'غرفة نشطة على هذا الجهاز: ':'Active room on this device: ')+room.code+' — '+room.host; } showScreen('join'); }
-function copyCode(){ if(!room) return; navigator.clipboard?.writeText(room.code).then(()=>toast('📋 Code copied: '+room.code)); }
-function shareCode(){ if(!room) return; let txt='Join my ROPE BATTLE room! Code: '+room.code; if(navigator.share) navigator.share({title:'ROPE BATTLE',text:txt}).catch(()=>copyCode()); else copyCode(); }
-function joinRoom(){
-  let code=$('joinCode').value.trim(), name=$('joinName').value.trim()||getName('joinName');
+/* NOTE: Deploy the full recommended rules from the Setup screen notes:
+   - Only members (p1/p2 uid) may read a room.
+   - Only the answerer may write currentAns.
+   - Only the current Question Master may write judgment / advance rope.
+   - Validate code = 5 digits, phase in allowed set, rope in [-winTarget, winTarget].
+   Keep the JSON above as a starting point and tighten .write rules per-field in production. */`;
+$('rulesPre').textContent=RULES;
+function copyRules(){navigator.clipboard?.writeText(RULES).then(()=>toast('📋 Rules copied'))}
+function loadCfg(){try{return JSON.parse(localStorage.getItem('ropeBattleFirebase')||'null')}catch(e){return null}}
+function fillCfgInputs(){let c=loadCfg();if(!c)return;['apiKey','authDomain','databaseURL','projectId','storageBucket','messagingSenderId','appId','measurementId'].forEach(k=>{if(c[k])$('cfg_'+k).value=c[k]});updateFbStatus('SAVED — click Test Connection',false)}
+function updateFbStatus(txt,ok){$('fbStatus').textContent=txt;$('fbStatus').parentElement.className='alert '+(ok?'ok':'danger');$('netBadge').textContent=ok?'● ONLINE — FIREBASE':'● LOCAL DEMO — NOT ONLINE';$('netBadge').style.background=ok?'#14532d':'#ff8a0022'}
+async function initFirebase(){
+  let cfg=loadCfg(); if(!cfg||!cfg.apiKey||!cfg.databaseURL){updateFbStatus('NOT CONFIGURED — online multiplayer is OFF',false);return false}
+  try{
+    if(!window.firebase){updateFbStatus('Firebase SDK failed to load (offline?)',false);return false}
+    if(!fbApp){fbApp=firebase.initializeApp(cfg); fbAuth=firebase.auth(); fbDb=firebase.database();}
+    await fbAuth.signInAnonymously(); myUid=fbAuth.currentUser.uid;
+    updateFbStatus('CONFIGURED + SIGNED IN ANONYMOUSLY — online ready',true); return true;
+  }catch(e){updateFbStatus('FIREBASE ERROR: '+e.message,false);return false}
+}
+async function saveFirebaseConfig(){
+  let cfg={};['apiKey','authDomain','databaseURL','projectId','storageBucket','messagingSenderId','appId','measurementId'].forEach(k=>cfg[k]=$('cfg_'+k).value.trim());
+  if(!cfg.apiKey||!cfg.databaseURL){toast('❌ apiKey + databaseURL are required');return}
+  localStorage.setItem('ropeBattleFirebase',JSON.stringify(cfg)); toast('💾 Config saved'); await initFirebase();
+}
+function clearFirebaseConfig(){localStorage.removeItem('ropeBattleFirebase');['apiKey','authDomain','databaseURL','projectId','storageBucket','messagingSenderId','appId','measurementId'].forEach(k=>$('cfg_'+k).value='');fbApp=null;updateFbStatus('NOT CONFIGURED — online multiplayer is OFF',false)}
+async function testFirebase(){let ok=await initFirebase(); if(!ok)return; try{await fbDb.ref('__healthcheck').set({at:Date.now()}); await fbDb.ref('__healthcheck').remove(); toast('✅ Firebase connected!')}catch(e){toast('❌ '+e.message)}}
+fillCfgInputs(); initFirebase();
+
+/* ---------- STATE SYNC: LOCAL vs FIREBASE ---------- */
+function newGameState(mode,winTarget,timerLen){
+  return {rope:0,score1:0,score2:0,round:1,master:0,mode,winTarget,timerLen,phase:'write',difficulty:'Easy',currentQ:null,currentAns:null,lastResult:'—'};
+}
+function newRoom(code,hostName,mode,winTarget,timerLen){
+  return {code,mode,winTarget,timerLen,status:'lobby',players:{p1:{name:hostName,uid:myUid},p2:null},game:newGameState(mode,winTarget,timerLen),createdAt:Date.now()};
+}
+// Push whole room (local) or patch (online). All writes go through this gate.
+async function persistRoom(patch){
+  if(connMode==='online' && fbDb && room){
+    try{ await fbDb.ref('rooms/'+room.code).update(patch); return; }catch(e){ toast('❌ Online sync failed: '+e.message); }
+  }
+  // Local: merge patch shallowly (supports 'game' and 'players' objects)
+  if(room){ Object.assign(room,patch); if(patch.game) Object.assign(room.game,patch.game); if(patch.players) Object.assign(room.players,patch.players); }
+  if(localRoom) localRoom=room;
+  renderFromRoom();
+}
+function subscribeRoom(code){
+  if(roomUnsub){try{roomUnsub()}catch(e){} roomUnsub=null}
+  if(connMode==='online' && fbDb){
+    roomRef=fbDb.ref('rooms/'+code);
+    roomRef.on('value',snap=>{ if(!snap.exists())return; room=snap.val(); renderFromRoom(); });
+  }
+}
+function renderFromRoom(){
+  if(!room||!room.game)return;
+  game=room.game;
+  // Lobby sync
+  $('roomCodeDisplay').textContent=room.code;
+  $('lobbyP1').textContent=(room.players.p1?.name||'Player 1')+' (Host)';
+  if(room.players.p2){$('lobbyP2').textContent=room.players.p2.name;$('lobbyP2Box').style.opacity=1;$('startBtn').disabled=false;$('waitMsg').style.display='none';$('lobbyProgress').style.width='100%';}
+  // Game sync
+  if(room.status==='playing'||room.status==='finished'){
+    $('gP1Name').textContent=room.players.p1?.name||'P1'; $('gP2Name').textContent=room.players.p2?.name||'P2';
+    $('arenaP1').textContent=room.players.p1?.name||'P1'; $('arenaP2').textContent=room.players.p2?.name||'P2';
+    $('codeLabel').textContent=room.code; $('modeLabel').textContent=game.mode==='math'?'🧮 Math':'✍️ Master';
+    document.querySelectorAll('.winNeed').forEach(e=>e.textContent=game.winTarget);
+    updateBoard(); renderPhase();
+    if(room.status==='finished' && !$('screen-win').classList.contains('show')) showWinScreen();
+  }
+  if(room.status==='lobby' && !$('screen-lobby').classList.contains('show') && !$('screen-game').classList.contains('show')){}
+}
+
+/* ---------- ROOM FLOW ---------- */
+function getName(fb){let v=$(fb).value.trim();return v||'Player'}
+async function createRoom(){
+  let name=getName('playerName'); let code=String(Math.floor(10000+Math.random()*90000));
+  let mode=$('gameMode').value, winTarget=parseInt($('winTarget').value), timerLen=parseInt($('timerLen').value);
+  if(connMode==='online'){
+    let ok=await initFirebase(); if(!ok){toast('❌ Firebase not configured — switching to Local Demo');setConnMode('local');}
+    else{
+      room=newRoom(code,name,mode,winTarget,timerLen); mySlot='p1';
+      try{await fbDb.ref('rooms/'+code).set(room); subscribeRoom(code);}catch(e){toast('❌ '+e.message);return}
+      $('lobbyModeLine').textContent='🌐 ONLINE — Share this code. Player 2 must use the SAME Firebase config.';
+      $('lobbyAlert').className='alert ok'; $('lobbyAlert').innerHTML='🌐 <b>Online room created.</b> Open this page on a second device with the same Firebase config and Join with code <b>'+code+'</b>.';
+      showScreen('lobby'); play(700); return;
+    }
+  }
+  // Local
+  room=newRoom(code,name,mode,winTarget,timerLen); localRoom=room; mySlot='p1';
+  $('lobbyP2').textContent='Waiting…'; $('lobbyP2Box').style.opacity=.6; $('startBtn').disabled=true; $('waitMsg').style.display='block'; $('lobbyProgress').style.width='50%';
+  $('lobbyModeLine').textContent='📱 LOCAL DEMO — Same device only'; $('lobbyAlert').className='alert'; $('lobbyAlert').innerHTML='📱 <b>Local Demo:</b> This room exists only on this device. Player 2 joins on this same device (hot-seat).';
+  $('roomCodeDisplay').textContent=code; showScreen('lobby'); play(700); toast('Room '+code+' created');
+}
+function goJoin(){
+  if(connMode==='local' && localRoom) $('activeRoomHint').textContent='Active local room on this device: '+localRoom.code+' — '+localRoom.players.p1.name;
+  else if(connMode==='online') $('activeRoomHint').textContent='Online: enter the code from the host device (same Firebase project).';
+  else $('activeRoomHint').textContent='';
+  $('joinSub').textContent=connMode==='online'?'Enter the 5-digit code from the host (same Firebase project).':'Enter the 5-digit code from the host (same device in Local Demo).';
+  showScreen('join');
+}
+function copyCode(){if(!room)return;navigator.clipboard?.writeText(room.code).then(()=>toast('📋 Code copied: '+room.code))}
+function shareCode(){if(!room)return;let txt='Join my ROPE BATTLE room! Code: '+room.code;if(navigator.share)navigator.share({title:'ROPE BATTLE',text:txt}).catch(()=>copyCode());else copyCode()}
+async function joinRoom(){
+  let code=$('joinCode').value.trim(), name=$('joinName').value.trim()||'Player 2';
   let err=$('joinError'); err.classList.add('hidden');
-  if(!/^\d{5}$/.test(code)){ err.textContent=lang==='ar'?'❌ أدخل رمزاً من 5 أرقام.':'❌ Please enter a valid 5-digit code.'; err.classList.remove('hidden'); play(180,0.2,'sawtooth'); return; }
-  if(!room || room.code!==code){ err.textContent=lang==='ar'?'❌ الغرفة غير موجودة على هذا الجهاز. أنشئ غرفة أولاً.':'❌ Room not found on this device. Create a room first — this is a local demo, codes only work on the device that created them.'; err.classList.remove('hidden'); play(180,0.2,'sawtooth'); return; }
-  if(room.p2){ err.textContent=lang==='ar'?'❌ الغرفة ممتلئة.':'❌ Room is full.'; err.classList.remove('hidden'); return; }
-  room.p2=name; $('lobbyP2').textContent=name; $('lobbyP2Box').style.opacity=1; $('startBtn').disabled=false; $('waitMsg').style.display='none'; $('lobbyProgress').style.width='100%'; showScreen('lobby'); play(800); toast('✅ '+name+' joined!');
+  const fail=m=>{err.textContent=m;err.classList.remove('hidden');play(180,.2,'sawtooth')};
+  if(!/^\d{5}$/.test(code)){fail('❌ Please enter a valid 5-digit code.');return}
+  if(connMode==='online'){
+    let ok=await initFirebase(); if(!ok){fail('❌ Firebase not configured. Go to ⚙️ Firebase Setup, or switch to Local Demo.');return}
+    try{
+      let snap=await fbDb.ref('rooms/'+code).get();
+      if(!snap.exists()){fail('❌ Room not found. Check the code and that both devices use the SAME Firebase config.');return}
+      let r=snap.val(); if(r.players?.p2){fail('❌ Room is full.');return}
+      mySlot='p2'; myUid=fbAuth.currentUser.uid;
+      await fbDb.ref('rooms/'+code+'/players/p2').set({name,uid:myUid});
+      await fbDb.ref('rooms/'+code).update({status:'lobby'});
+      room=r; room.players.p2={name,uid:myUid}; subscribeRoom(code); showScreen('lobby'); play(800); toast('✅ Joined online room '+code); return;
+    }catch(e){fail('❌ '+e.message);return}
+  }
+  // Local
+  if(!localRoom||localRoom.code!==code){fail('❌ Room not found on this device. Create a room first — local codes only work on the device that created them.');return}
+  if(localRoom.players.p2){fail('❌ Room is full.');return}
+  localRoom.players.p2={name,uid:'local-p2'}; room=localRoom; mySlot='p2';
+  $('lobbyP2').textContent=name; $('lobbyP2Box').style.opacity=1; $('startBtn').disabled=false; $('waitMsg').style.display='none'; $('lobbyProgress').style.width='100%';
+  showScreen('lobby'); play(800); toast('✅ '+name+' joined!');
 }
-function quickDemo(){ let n1=getName('playerName')||'Alex'; room={code:String(Math.floor(10000+Math.random()*90000)),host:n1,p1:n1,p2:lang==='ar'?'سارة':'Salma',mode:$('gameMode').value,winTarget:parseInt($('winTarget').value),timerLen:parseInt($('timerLen').value)}; startGame(); }
-// ===== GAME =====
+function leaveRoom(){ stopTimer(); if(roomUnsub){try{roomUnsub()}catch(e){}} room=null; showScreen('menu'); }
+function quickDemo(){ let n1=getName('playerName')||'Alex'; connMode='local'; setConnMode('local'); room=newRoom(String(Math.floor(10000+Math.random()*90000)),n1,$('gameMode').value,parseInt($('winTarget').value),parseInt($('timerLen').value)); room.players.p2={name:lang==='ar'?'سارة':'Salma',uid:'local-p2'}; localRoom=room; mySlot='p1'; startGame(); }
+
+/* ---------- GAME ---------- */
+function difficultyForRound(r){ return r<=2?'Easy':r<=4?'Medium':'Hard'; }
 function startGame(){
-  if(!room||!room.p2){ toast(lang==='ar'?'بانتظار اللاعب 2':'Waiting for Player 2'); return; }
-  game={p1:room.p1,p2:room.p2,score1:0,score2:0,rope:0,round:1,master:0,mode:room.mode,winTarget:room.winTarget,timerLen:room.timerLen,phase:'write',currentQ:null,currentAns:'',math:null};
-  document.querySelectorAll('.winNeed').forEach(e=>e.textContent=game.winTarget);
-  $('gP1Name').textContent=game.p1; $('gP2Name').textContent=game.p2; $('arenaP1').textContent=game.p1; $('arenaP2').textContent=game.p2; $('codeLabel').textContent=room.code; $('modeLabel').textContent=game.mode==='math'?'🧮 Math':'✍️ Master';
-  showScreen('game'); updateBoard(); renderPhase(); play(700);
+  if(!room||!room.players?.p2){toast('Waiting for Player 2');return}
+  // Only host starts (local: either; online: p1 only)
+  if(connMode==='online' && mySlot!=='p1'){toast('Only the host (Player 1) can start.');return}
+  let g=newGameState(room.mode,room.winTarget,room.timerLen); g.phase='write'; g.difficulty=difficultyForRound(1);
+  persistRoom({status:'playing',game:g});
+  showScreen('game'); play(700);
 }
 function updateBoard(){
+  if(!game)return;
   $('gP1Score').textContent=game.score1; $('gP2Score').textContent=game.score2; $('gP1Pts').textContent=game.score1; $('gP2Pts').textContent=game.score2;
   $('roundNum').textContent=game.round; $('ropePosLabel').textContent=(game.rope>0?'+'+game.rope:game.rope);
-  let masterName=game.master===0?game.p1:game.p2; $('turnLabel').textContent=t('turn_master')+' '+masterName;
-  // rope: -winTarget .. +winTarget ; negative = toward P1 (left), positive = toward P2 (right)
-  let pct=50 + (game.rope/game.winTarget)*38;
+  $('diffLabel').textContent=(game.difficulty==='Easy'?'🟢 EASY':game.difficulty==='Medium'?'🟡 MEDIUM':'🔴 HARD')+' • '+(game.difficulty||'Easy');
+  let masterName=game.master===0?room.players.p1.name:room.players.p2.name; $('turnLabel').textContent='Question Master: '+masterName;
+  $('syncLabel').textContent=connMode==='online'?'🌐 ONLINE • '+room.code:'● LOCAL • '+room.code;
+  $('p1Role').textContent=game.master===0?'👑 MASTER':'✏️ ANSWERER'; $('p2Role').textContent=game.master===1?'👑 MASTER':'✏️ ANSWERER';
+  let pct=50+(game.rope/game.winTarget)*38;
   $('ropeWrap').style.transform='translate(-50%,-50%) translateX('+((pct-50)*6)+'px)';
-  $('player1El').style.left=(22 + (game.rope/game.winTarget)*-10)+'%';
-  $('player2El').style.left=(78 + (game.rope/game.winTarget)*10)+'%';
+  $('player1El').style.left=(22+(game.rope/game.winTarget)*-10)+'%';
+  $('player2El').style.left=(78+(game.rope/game.winTarget)*10)+'%';
+  $('streakLabel').textContent=game.lastResult||'—';
 }
-function startTimer(onExpire){
-  clearInterval(timerInt); timeLeft=game.timerLen; if(!game.timerLen){ $('timer').textContent='⏱ ∞'; return; }
-  $('timer').textContent='⏱ '+timeLeft;
-  timerInt=setInterval(()=>{ timeLeft--; $('timer').textContent='⏱ '+timeLeft; if(timeLeft<=5) play(900,.08,'square'); if(timeLeft<=0){ clearInterval(timerInt); onExpire&&onExpire(); } },1000);
+function startTimer(onExpire){ clearInterval(timerInt); timeLeft=game.timerLen; if(!game.timerLen){$('timer').textContent='⏱ ∞';return} $('timer').textContent='⏱ '+timeLeft; timerInt=setInterval(()=>{timeLeft--; $('timer').textContent='⏱ '+timeLeft; if(timeLeft<=5)play(900,.08,'square'); if(timeLeft<=0){clearInterval(timerInt); onExpire&&onExpire()}},1000)}
+function stopTimer(){clearInterval(timerInt)}
+// Who may act? Local: hot-seat, everyone may act but UI says who should hold device.
+// Online: enforce mySlot — only Master sees Write/Judge, only Answerer sees Answer.
+function canActAs(role){
+  if(connMode==='local') return true;
+  if(role==='master') return mySlot===(game.master===0?'p1':'p2');
+  if(role==='answerer') return mySlot===(game.master===0?'p2':'p1');
+  return true;
 }
-function stopTimer(){ clearInterval(timerInt); }
 function renderPhase(){
-  let box=$('phaseBox'); let master=game.master===0?game.p1:game.p2; let opp=game.master===0?game.p2:game.p1;
-  if(game.mode==='math'){ renderMath(box); return; }
+  let box=$('phaseBox'); if(!game||!room)return;
+  let master=game.master===0?room.players.p1.name:room.players.p2.name;
+  let opp=game.master===0?room.players.p2.name:room.players.p1.name;
+  if(game.mode==='math'){renderMath(box);return}
   if(game.phase==='write'){
-    box.innerHTML=`<div class="card" style="padding:0;overflow:hidden"><div style="background:#7c3aed;padding:14px 18px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px"><b>👑 ${t('you_are_master')} — ${master}</b><span style="background:#fff;color:#7c3aed;padding:5px 10px;border-radius:999px;font-size:12px;font-weight:900">📱 ${lang==='ar'?'مرر الجهاز لسيد الأسئلة':'Pass device to Question Master'}</span></div><div style="padding:18px"><h3>${t('write_q')}</h3><label>${t('category')}</label><select id="qCat"><option>🧠 General / عام</option><option>🧮 Math / رياضيات</option><option>🌍 Geography / جغرافيا</option><option>⚽ Sports / رياضة</option><option>🎬 Movies / أفلام</option><option>😂 Funny / مضحك</option></select><label>${t('write_q')}</label><textarea id="qText" placeholder="${t('q_placeholder')}"></textarea><button class="btn btn-blue" onclick="submitQuestion()">${t('submit_q')}</button><p class="muted" style="margin-top:10px">💡 ${lang==='ar'?'اكتب أي سؤال. ستجيب عليه أنت بنفسك؟ لا — خصمك يجيب، وأنت تحكم.':'Write any question. Your opponent answers, you judge. Be fair — wrong judging kills the fun!'}</p></div></div>`;
+    let gate=canActAs('master')?'':`<div class="alert danger">⏳ <b>Waiting for ${esc(master)} (Question Master)</b> to write a question. This device is the opponent — please wait, the question will appear here automatically.</div>`;
+    let form=canActAs('master')?`<label>Difficulty Guide — you may write ANY question</label><div class="diff" id="diffBtns"><button type="button" class="${game.difficulty==='Easy'?'sel':''}" onclick="setDifficulty('Easy')">🟢 Easy</button><button type="button" class="${game.difficulty==='Medium'?'sel':''}" onclick="setDifficulty('Medium')">🟡 Medium</button><button type="button" class="${game.difficulty==='Hard'?'sel':''}" onclick="setDifficulty('Hard')">🔴 Hard</button></div><label>Category (optional)</label><select id="qCat"><option>🧠 General</option><option>🧮 Math</option><option>🌍 Geography</option><option>⚽ Sports</option><option>🎬 Movies</option><option>😂 Funny</option></select><label>Write Your Question</label><textarea id="qText" placeholder="Write a tricky question for your opponent…"></textarea><button class="btn btn-blue" onclick="submitQuestion()">Send Question to Opponent →</button>`:`<p class="muted">Difficulty for this round: <b>${esc(game.difficulty||'Easy')}</b> — guide only.</p>`;
+    box.innerHTML=`<div class="card" style="padding:0;overflow:hidden"><div style="background:#7c3aed;padding:14px 18px;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap"><b>👑 WRITE QUESTION — ${esc(master)}</b><span style="background:#fff;color:#7c3aed;padding:5px 10px;border-radius:999px;font-size:12px;font-weight:900">${connMode==='online'?'🌐 ONLINE':'📱 Pass device to Question Master'}</span></div><div style="padding:18px"><h3>✍️ Write Your Question</h3>${gate||form}<p class="muted" style="margin-top:10px">💡 Write any question. Your opponent answers, you judge. Difficulty is a guide only.</p></div></div>`;
   } else if(game.phase==='answer'){
-    box.innerHTML=`<div class="qcard"><span class="master-tag">👑 ${t('from_master')} ${master} • ${game.currentQ.cat}</span><h3 style="margin-top:12px">${t('answer_q')}</h3><p style="font-size:19px;font-weight:700">${escapeHtml(game.currentQ.text)}</p><p class="muted">📱 ${lang==='ar'?'مرر الجهاز للخصم للإجابة':'Pass device to opponent to answer'}</p><label>${t('your_answer')}</label><input id="ansText" placeholder="${lang==='ar'?'اكتب إجابتك هنا…':'Type your answer here…'}"><button class="btn btn-gold" style="margin-top:12px" onclick="submitAnswer()">${t('submit_a')}</button></div>`;
-    startTimer(()=>{ toast(lang==='ar'?'انتهى الوقت! السيد يفوز بهذه الجولة':'Time up! Master wins this round'); judgeAnswer(false); });
+    if(!canActAs('answerer')){ box.innerHTML=`<div class="card" style="text-align:center"><h3>⏳ Waiting for ${esc(opp)} to answer…</h3><p class="muted" style="margin-top:8px">Question sent. The answer will appear for you (the Master) to judge.</p><div class="qcard" style="margin-top:12px;text-align:left"><b>Your question:</b><p>${esc(game.currentQ?.text||'')}</p></div></div>`; return; }
+    box.innerHTML=`<div class="qcard"><span class="master-tag">👑 Question from ${esc(master)} • ${esc(game.currentQ?.cat||'')} • ${esc(game.currentQ?.difficulty||game.difficulty||'Easy')}</span><h3 style="margin-top:12px">🧠 Answer the Question</h3><p style="font-size:19px;font-weight:700">${esc(game.currentQ?.text||'')}</p><p class="muted">📱 ${connMode==='online'?'You are the answerer on this device.':''} Type your answer below.</p><label>Your Answer</label><input id="ansText" placeholder="Type your answer here…"><button class="btn btn-gold" style="margin-top:12px" onclick="submitAnswer()">Submit Answer</button></div>`;
+    startTimer(()=>{ if(canActAs('answerer')){ toast('Time up! Master wins this round'); /* timeout = wrong, judged by system only for timeout, Master still owns judgment in normal flow */ if(connMode==='local') judgeAnswer(false); } });
   } else if(game.phase==='judge'){
-    box.innerHTML=`<div class="qcard"><span class="master-tag">⚖️ ${t('judge_title')} — ${master}</span><h3 style="margin-top:12px">Q: ${escapeHtml(game.currentQ.text)}</h3><p><b>${t('opponent_answered')}</b></p><div style="background:#fef3c7;border:1px solid #fcd34d;padding:14px;border-radius:12px;font-size:18px;font-weight:800">${escapeHtml(game.currentAns||'(no answer)')}</div><p class="muted">📱 ${lang==='ar'?'مرر الجهاز لسيد الأسئلة للحكم':'Pass device back to Question Master to judge'}</p><div class="judge"><button class="btn btn-green" onclick="judgeAnswer(true)">${t('correct')}</button><button class="btn btn-red" onclick="judgeAnswer(false)">${t('wrong')}</button></div></div>`;
-    stopTimer();
+    if(!canActAs('master')){ box.innerHTML=`<div class="card" style="text-align:center"><h3>⏳ Waiting for Question Master to judge your answer…</h3><p class="muted" style="margin-top:8px">“${esc(game.currentAns?.text||'')}”</p></div>`; stopTimer(); return; }
+    box.innerHTML=`<div class="qcard"><span class="master-tag">⚖️ JUDGE THE ANSWER — ${esc(master)}</span><h3 style="margin-top:12px">Q: ${esc(game.currentQ?.text||'')}</h3><p><b>Opponent answered:</b></p><div style="background:#fef3c7;border:1px solid #fcd34d;padding:14px;border-radius:12px;font-size:18px;font-weight:800">${esc(game.currentAns?.text||'(no answer)')}</div><p class="muted">Only YOU (the Question Master) can judge. No auto-judging.</p><div class="judge"><button class="btn btn-green" onclick="judgeAnswer(true)">✅ CORRECT</button><button class="btn btn-red" onclick="judgeAnswer(false)">❌ WRONG</button></div></div>`; stopTimer();
   } else if(game.phase==='waiting'){
-    box.innerHTML=`<div class="card" style="text-align:center"><h3>${t('waiting_judge')}</h3><p class="muted" style="margin-top:8px">“${escapeHtml(game.currentAns)}”</p><button class="btn btn-ghost" style="margin-top:12px" onclick="game.phase='judge';renderPhase()">👑 ${lang==='ar'?'أنا سيد الأسئلة — احكم الآن':'I am the Master — Judge Now'}</button></div>`;
+    box.innerHTML=`<div class="card" style="text-align:center"><h3>⏳ Waiting for Question Master to judge…</h3><p class="muted" style="margin-top:8px">“${esc(game.currentAns?.text||'')}”</p>${canActAs('master')?`<button class="btn btn-ghost" style="margin-top:12px" onclick="goJudge()">👑 I am the Master — Judge Now</button>`:''}</div>`;
   }
 }
-function escapeHtml(s){ return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function setDifficulty(d){ if(!canActAs('master'))return; persistRoom({game:{...game,difficulty:d}}); }
+function goJudge(){ persistRoom({game:{...game,phase:'judge'}}); }
 function submitQuestion(){
-  let txt=$('qText').value.trim(); if(txt.length<3){ toast(lang==='ar'?'اكتب سؤالاً أطول':'Please write a question (min 3 chars)'); play(180,.2,'sawtooth'); return; }
-  game.currentQ={text:txt,cat:$('qCat').value}; game.phase='answer'; play(600); toast('📤 Question sent to opponent!'); renderPhase();
+  if(!canActAs('master')){toast('Only the Question Master can write the question.');return}
+  let txt=$('qText').value.trim(); if(txt.length<3){toast('Please write a question (min 3 chars)');play(180,.2,'sawtooth');return}
+  let q={text:txt,cat:$('qCat').value,difficulty:game.difficulty||'Easy',by:game.master};
+  persistRoom({game:{...game,currentQ:q,currentAns:null,phase:'answer'}}); play(600); toast('📤 Question sent to opponent!');
 }
-function submitAnswer(){ let a=$('ansText').value.trim(); if(!a){ toast(lang==='ar'?'اكتب إجابة أولاً':'Write an answer first'); return; } game.currentAns=a; game.phase='waiting'; play(600); renderPhase(); }
+function submitAnswer(){
+  if(!canActAs('answerer')){toast('Only the opponent (answerer) can submit an answer.');return}
+  let a=$('ansText').value.trim(); if(!a){toast('Write an answer first');return}
+  // Answerer writes ONLY their answer — never the judgment/rope.
+  persistRoom({game:{...game,currentAns:{text:a,by:game.master===0?1:0,byUid:myUid,at:Date.now()},phase:'judge'}}); play(600);
+}
 function judgeAnswer(isCorrect){
-  stopTimer(); let master=game.master;
+  // SECURITY GATE: only current Master may judge.
+  if(!canActAs('master')){toast('⛔ Only the Question Master can judge.');return}
+  stopTimer();
+  let master=game.master;
+  let g={...game,round:game.round+1};
+  g.difficulty=difficultyForRound(g.round);
   if(isCorrect){
-    // answering player wins -> rope toward answering player (opponent of master)
-    let winner = master===0?1:0;
-    moveRope(winner); $('streakLabel').textContent=t('correct_pull'); toast('✅ '+t('new_master')); game.master=winner; game.phase='write'; game.round++;
-  } else {
-    moveRope(master); $('streakLabel').textContent=t('master_keeps'); toast('❌ '+t('master_keeps')); game.phase='write'; game.round++;
+    let winner=master===0?1:0;
+    if(winner===0){g.rope=game.rope-1;g.score1=game.score1+1}else{g.rope=game.rope+1;g.score2=game.score2+1}
+    g.master=winner; g.lastResult='✅ Correct! New Master!'; g.phase='write'; g.currentQ=null; g.currentAns=null;
+    toast('✅ Correct! New Question Master!'); play(750);
+  }else{
+    if(master===0){g.rope=game.rope-1;g.score1=game.score1+1}else{g.rope=game.rope+1;g.score2=game.score2+1}
+    g.master=master; g.lastResult='❌ Wrong! Master keeps crown'; g.phase='write'; g.currentQ=null; g.currentAns=null;
+    toast('❌ Wrong! Master keeps the crown'); play(750);
   }
-  play(750); updateBoard(); if(!checkWin()) renderPhase();
+  // Win check before persisting phase
+  let win = Math.abs(g.rope)>=g.winTarget || g.score1>=g.winTarget || g.score2>=g.winTarget;
+  if(win){ g.phase='write'; persistRoom({status:'finished',game:g}); showWinScreen(g); return; }
+  persistRoom({game:g});
 }
-function moveRope(winnerIdx){ if(winnerIdx===0){ game.rope--; game.score1++; } else { game.rope++; game.score2++; } }
-function checkWin(){
-  if(Math.abs(game.rope)>=game.winTarget || game.score1>=game.winTarget || game.score2>=game.winTarget){
-    stopTimer(); let w = game.rope<0 || (game.score1>game.score2 && game.rope<=0) ? 0 : (game.score1>game.score2?0:1);
-    if(game.score1>=game.winTarget && game.score1>game.score2) w=0; if(game.score2>=game.winTarget && game.score2>game.score1) w=1;
-    let name=w===0?game.p1:game.p2; $('winnerName').textContent='🏆 '+name+' '+ (lang==='ar'?'يفوز!':'WINS!'); $('winnerText').textContent=(lang==='ar'?'سحب الحبل حتى النهاية! النتيجة: ':'Pulled the rope all the way! Score: ')+game.p1+' '+game.score1+' — '+game.score2+' '+game.p2+' • '+(game.round)+' '+(lang==='ar'?'جولة':'rounds');
-    showScreen('win'); playWin(); return true;
-  } return false;
+function showWinScreen(g){
+  g=g||game; if(!g)return;
+  let w = g.score1>g.score2?0: g.score2>g.score1?1 : (g.rope<0?0:1);
+  if(g.score1>=g.winTarget && g.score1>g.score2) w=0; if(g.score2>=g.winTarget && g.score2>g.score1) w=1;
+  let name=w===0?room.players.p1.name:room.players.p2.name;
+  $('winnerName').textContent='🏆 '+name+' WINS!';
+  $('winnerText').textContent='Pulled the rope all the way! Score: '+room.players.p1.name+' '+g.score1+' — '+g.score2+' '+room.players.p2.name+' • '+g.round+' rounds';
+  showScreen('win'); playWin();
 }
-// ===== QUICK MATH =====
+function checkWinLocal(){ return false; }
+/* ---------- QUICK MATH ---------- */
 function genMath(){
-  let level = game.round<=2?1: game.round<=4?2:3;
-  let a,b,op,ans; let ops = level===1?['+','-']: level===2?['+','-','×']:['+','-','×','÷'];
-  op=ops[Math.floor(Math.random()*ops.length)];
-  if(op==='+'){ a=2+Math.floor(Math.random()*(level*12)); b=2+Math.floor(Math.random()*(level*12)); ans=a+b; }
-  else if(op==='-'){ a=5+Math.floor(Math.random()*(level*15)); b=1+Math.floor(Math.random()*a); ans=a-b; }
-  else if(op==='×'){ a=2+Math.floor(Math.random()*(3+level*2)); b=2+Math.floor(Math.random()*(3+level*2)); ans=a*b; }
-  else { b=2+Math.floor(Math.random()*8); ans=2+Math.floor(Math.random()*9); a=b*ans; }
-  let opts=new Set([ans]); while(opts.size<4){ opts.add(ans+Math.floor(Math.random()*11)-5); opts.delete(ans); opts.add(ans); }
-  // fix set properly
-  let arr=[ans]; while(arr.length<4){ let v=ans+Math.floor(Math.random()*11)-5; if(v!==ans && !arr.includes(v) && v>=0) arr.push(v); }
-  arr.sort(()=>Math.random()-.5);
-  game.math={q:`${a} ${op} ${b} = ?`,ans,opts:arr,level};
+  let level=game.round<=2?1:game.round<=4?2:3; let a,b,op,ans;
+  let ops=level===1?['+','-']:level===2?['+','-','×']:['+','-','×','÷']; op=ops[Math.floor(Math.random()*ops.length)];
+  if(op==='+'){a=2+Math.floor(Math.random()*level*12);b=2+Math.floor(Math.random()*level*12);ans=a+b}
+  else if(op==='-'){a=5+Math.floor(Math.random()*level*15);b=1+Math.floor(Math.random()*a);ans=a-b}
+  else if(op==='×'){a=2+Math.floor(Math.random()*(3+level*2));b=2+Math.floor(Math.random()*(3+level*2));ans=a*b}
+  else{b=2+Math.floor(Math.random()*8);ans=2+Math.floor(Math.random()*9);a=b*ans}
+  let arr=[ans]; while(arr.length<4){let v=ans+Math.floor(Math.random()*11)-5; if(v!==ans&&!arr.includes(v)&&v>=0)arr.push(v)} arr.sort(()=>Math.random()-.5);
+  return {q:`${a} ${op} ${b} = ?`,ans,opts:arr,level};
 }
 function renderMath(box){
-  if(!game.math || game.mathForRound!==game.round){ genMath(); game.mathForRound=game.round; }
-  let m=game.math; let master=game.master===0?game.p1:game.p2;
-  box.innerHTML=`<div class="qcard"><span class="master-tag">🧮 ${t('math_title')} • ${lang==='ar'?'المستوى':'Level'} ${m.level} • ${t('turn_master')} ${master}</span><h3 style="margin-top:12px;font-size:32px;text-align:center">${m.q}</h3><p class="muted" style="text-align:center">${t('math_sub')}</p><div class="choices">${m.opts.map(o=>`<button class="choice" onclick="answerMath(${o})">${o}</button>`).join('')}</div><p class="muted" style="margin-top:10px;text-align:center">📱 ${lang==='ar'?'مرر الجهاز — الخصم يجيب أولاً':'Pass device — opponent answers first'}</p></div>`;
-  startTimer(()=>{ toast(lang==='ar'?'انتهى الوقت!':'Time up!'); answerMath(null); });
+  if(!game.mathQ || game.mathForRound!==game.round){ let m=genMath(); persistRoom({game:{...game,mathQ:m,mathForRound:game.round}}); return; }
+  let m=game.mathQ; let master=game.master===0?room.players.p1.name:room.players.p2.name;
+  box.innerHTML=`<div class="qcard"><span class="master-tag">🧮 Quick Math • Level ${m.level} • Master: ${esc(master)}</span><h3 style="margin-top:12px;font-size:32px;text-align:center">${m.q}</h3><p class="muted" style="text-align:center">Solve it! Opponent answers — Master does not answer.</p><div class="choices">${m.opts.map(o=>`<button class="choice" onclick="answerMath(${o})">${o}</button>`).join('')}</div></div>`;
+  startTimer(()=>{ if(canActAs('answerer')) answerMath(null); });
 }
 function answerMath(val){
-  stopTimer(); let m=game.math; let answering = game.master===0?1:0; // opponent answers in math mode too
-  if(val===m.ans){ moveRope(answering); $('streakLabel').textContent='✅ '+game.p1+'/'+game.p2; toast(t('correct_pull')); game.master=answering; }
-  else { moveRope(game.master); $('streakLabel').textContent='❌'; toast(t('wrong_pull')); }
-  game.round++; game.math=null; updateBoard(); if(!checkWin()) renderPhase();
+  if(!canActAs('answerer')){toast('Only the opponent answers in Math mode.');return}
+  stopTimer(); let m=game.mathQ; let answering=game.master===0?1:0; let g={...game,round:game.round+1,mathQ:null,mathForRound:null};
+  g.difficulty=difficultyForRound(g.round);
+  if(val===m.ans){ if(answering===0){g.rope--;g.score1++}else{g.rope++;g.score2++} g.master=answering; g.lastResult='✅ Correct!'; toast('✅ Correct! Rope pulls toward you!'); }
+  else{ if(game.master===0){g.rope--;g.score1++}else{g.rope++;g.score2++} g.lastResult='❌ Wrong!'; toast('❌ Wrong! Rope pulls toward opponent!'); }
+  let win=Math.abs(g.rope)>=g.winTarget||g.score1>=g.winTarget||g.score2>=g.winTarget;
+  if(win){persistRoom({status:'finished',game:g});showWinScreen(g);return}
+  persistRoom({game:g});
 }
-function switchTurn(){ if(!game) return; game.master=game.master===0?1:0; game.phase='write'; game.math=null; renderPhase(); toast(lang==='ar'?'تم تبديل الدور':'Turn switched'); }
-function quitGame(){ stopTimer(); showScreen('menu'); }
-function rematch(){ if(!room) return; room.p2=room.p2||'Salma'; startGame(); }
+function quitGame(){stopTimer();if(roomUnsub){try{roomUnsub()}catch(e){}}showScreen('menu')}
+function rematch(){
+  if(!room)return;
+  if(connMode==='online' && mySlot!=='p1'){toast('Only host can start rematch.');return}
+  let g=newGameState(room.mode,room.winTarget,room.timerLen); g.phase='write';
+  persistRoom({status:'playing',game:g}); showScreen('game'); play(700);
+}
 applyLang();
 </script>
 </body>

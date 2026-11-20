@@ -89,97 +89,6 @@ td input:disabled{background:#e2e8f0}td input.ok{border-color:#22c55e}td input.b
 <div class="toast" id="toast"></div>
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 <script>
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>ROPE BATTLE — Letter Challenge | Game 2</title>
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@700;800;900&family=Baloo+2:wght@700;800&display=swap" rel="stylesheet">
-<style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:Cairo,sans-serif;background:radial-gradient(800px 400px at 15% -10%,#1a3a6e,transparent 60%),#071226;color:#fff;min-height:100vh}
-.topbar{max-width:1120px;margin:0 auto;padding:14px 16px;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center}
-.logo b{font-family:"Baloo 2";font-size:22px}.logo b i{font-style:normal;color:#ffc93c}
-.pill{border:1px solid #223f6e;background:#0f244a;color:#fff;padding:9px 12px;border-radius:999px;cursor:pointer;font-weight:800;font-size:13px}
-.pill.gold{background:#ffc93c;color:#1a1000;border-color:#ffc93c}.pill:disabled{opacity:.5}
-.wrap{max-width:1120px;margin:0 auto;padding:6px 16px 30px}
-.screen{display:none}.screen.show{display:block;animation:f .3s ease}@keyframes f{from{opacity:0;transform:translateY(8px)}to{opacity:1}}
-.card{background:linear-gradient(180deg,#132c52,#0d1f3f);border:1px solid #254a7a;border-radius:22px;padding:20px}
-h1{font-family:"Baloo 2";font-size:clamp(42px,6vw,62px)}h1 span{color:#ffc93c}
-label{font-size:12px;color:#a9bddb;font-weight:800;display:block;margin:13px 0 6px}
-input,select{width:100%;background:#081a38;border:1px solid #2b4c7e;color:#fff;padding:14px;border-radius:14px;outline:none;font-size:16px}
-.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}@media(max-width:560px){.row{grid-template-columns:1fr}}
-.btn{border:0;cursor:pointer;border-radius:14px;padding:15px;font-weight:900;font-size:15px;display:flex;justify-content:center;gap:8px;width:100%}
-.btn-blue{background:linear-gradient(180deg,#2ea6ff,#0077ff);color:#fff}.btn-gold{background:linear-gradient(180deg,#ffd34d,#ff8a00);color:#231300}
-.btn-ghost{background:#ffffff12;color:#fff;border:1px solid #ffffff22}.btn-green{background:linear-gradient(180deg,#2ee06a,#059669);color:#fff}
-.btn-red{background:linear-gradient(180deg,#ff5a6a,#e11d48);color:#fff}.btn:disabled{opacity:.5}
-.muted{color:#9fb3d6;font-size:13px;line-height:1.7}
-.alert{background:#fff7d6;color:#5a3b00;border:1px solid #ffd34d;padding:11px;border-radius:12px;font-size:13px;line-height:1.6;margin-top:12px}
-.alert.danger{background:#ffe4e6;color:#7f1d1d;border-color:#fda4af}.alert.ok{background:#dcfce7;color:#14532d;border-color:#86efac}
-.scoreboard{display:flex;gap:10px;flex-wrap:wrap}.score{flex:1;min-width:170px;border-radius:18px;padding:14px;display:flex;gap:12px;align-items:center;border:1px solid #ffffff22}
-.score.blue{background:#1a6cff}.score.red{background:#ff4d6d}.score .pts{margin-inline-start:auto;font-family:"Baloo 2";font-size:30px}
-.center-card{text-align:center;min-width:190px}.timer{font-family:"Baloo 2";font-size:32px;color:#ffc93c}
-.letter-big{font-size:84px;font-weight:900;color:#ffc93c;text-align:center;line-height:1}
-.letters{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin-top:12px}@media(max-width:600px){.letters{grid-template-columns:repeat(5,1fr)}}
-.letter-btn{padding:14px 4px;border-radius:14px;border:1px solid #2b4c7e;background:#081a38;color:#fff;font-size:24px;font-weight:900;cursor:pointer}
-.letter-btn.used{opacity:.3;text-decoration:line-through}
-.table-wrap{overflow:auto;border-radius:16px;border:1px solid #254a7a;margin-top:14px;background:#081a38}
-table{width:100%;border-collapse:collapse;min-width:640px}th,td{padding:12px;border-bottom:1px solid #223f6e;text-align:center}th{background:#0f244a}
-td input{background:#fff;color:#111;border:2px solid #e5e7eb;font-weight:800;text-align:center;font-size:17px;width:100%;padding:12px;border-radius:12px}
-td input:disabled{background:#e2e8f0}td input.ok{border-color:#22c55e}td input.bad{border-color:#ff3b5c}
-.judge-row{display:flex;gap:6px;justify-content:center}.jb{padding:7px 10px;border-radius:999px;border:1px solid #ffffff33;background:#ffffff12;color:#fff;cursor:pointer;font-weight:800;font-size:12px}
-.jb.on1{background:#22c55e}.jb.on0{background:#ff3b5c}
-.navbar{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}.navbar .btn{flex:1}
-.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:#fff;color:#111;padding:12px 16px;border-radius:999px;font-weight:800;z-index:99;display:none;max-width:92vw;text-align:center}
-.dot{width:10px;height:10px;border-radius:50%;display:inline-block;background:#f59e0b}.dot.on{background:#22c55e}.dot.off{background:#ef4444}.hidden{display:none!important}
-</style>
-</head>
-<body>
-<header class="topbar">
-<div class="logo">🪢 <b>ROPE <i>BATTLE</i></b> • تحدي الحروف <span style="font-size:11px;background:#ff8a0022;border:1px solid #ff8a0055;color:#ffd59a;padding:5px 9px;border-radius:999px">PEERJS • GAME 2</span></div>
-<div style="display:flex;gap:8px;flex-wrap:wrap">
-<span class="pill"><span class="dot" id="connDot"></span> <span id="connLabel">Not connected</span></span>
-<button class="pill" id="soundBtn">🔊 الصوت</button>
-<button class="pill" onclick="goPrevGame()">⬅ BACK TO ROPE BATTLE</button>
-<button class="pill gold" onclick="goNextGame()">▶️ NEXT GAME</button>
-</div>
-</header>
-<main class="wrap">
-<section id="screen-menu" class="screen show">
-<div class="card">
-<span style="background:#ffc93c;color:#231300;padding:5px 10px;border-radius:999px;font-size:12px;font-weight:900">GAME 2 • اللعبة الثانية</span>
-<h1 style="margin-top:10px">تحدي <span>الحروف</span> 🔤</h1>
-<p class="muted">سيد الحرف يختار حرفاً. اللاعبان يملآن 8 فئات بكلمات تبدأ بنفس الحرف. كل إجابة صحيحة = <b style="color:#fff">10 نقاط</b>. أول من يصل <b style="color:#fff">500</b> يفوز! إذا أعطى اللاعبان نفس الإجابة الصحيحة، يحصل كل منهما على 10 نقاط.</p>
-<div class="alert" id="roomInfo">إذا جئت من ROPE BATTLE، سيتم إعادة الاتصال بنفس الغرفة تلقائياً. وإلا أدخل اسمك ورمز الغرفة أدناه.</div>
-<div class="row"><div><label>اسم اللاعب 1 (المضيف)</label><input id="p1Name" placeholder="آدم"></div><div><label>اسم اللاعب 2</label><input id="p2Name" placeholder="سلمى"></div></div>
-<label>رمز الغرفة (5 أرقام) — اتركه فارغاً إذا كنت المضيف وستُنشأ غرفة</label>
-<input id="roomCodeInput" placeholder="12345" maxlength="5" inputmode="numeric">
-<div id="joinError" class="alert danger hidden"></div>
-<div class="row" style="margin-top:14px"><button class="btn btn-blue" onclick="createOrJoin()">🚀 إنشاء / انضمام</button><button class="btn btn-gold" onclick="goNextGame()">▶️ NEXT GAME</button></div>
-<div class="navbar"><button class="btn btn-ghost" onclick="goPrevGame()">⬅ BACK TO ROPE BATTLE</button></div>
-</div>
-</section>
-
-<section id="screen-game" class="screen">
-<div class="scoreboard">
-<div class="score blue"><span style="font-size:30px">🧑‍🦰</span><div><h3 id="gP1Name">لاعب 1</h3><p>الجولة: <b id="p1Round">0</b> • <span id="p1Role">—</span></p></div><div class="pts" id="gP1Pts">0</div></div>
-<div class="score center-card"><div>الجولة <b id="roundNum">1</b> • <span id="phaseLabel">اختيار الحرف</span></div><div class="timer" id="timer">⏱ 120</div><div class="muted" id="syncLabel">—</div></div>
-<div class="score red"><span style="font-size:30px">🧑‍🦱</span><div><h3 id="gP2Name">لاعب 2</h3><p>الجولة: <b id="p2Round">0</b> • <span id="p2Role">—</span></p></div><div class="pts" id="gP2Pts">0</div></div>
-</div>
-<div class="card" style="margin-top:14px" id="phaseBox"></div>
-<div class="navbar"><button class="btn btn-ghost" onclick="goPrevGame()">⬅ BACK TO ROPE BATTLE</button><button class="btn btn-gold" onclick="goNextGame()">▶️ NEXT GAME</button><button class="btn btn-ghost" onclick="leaveRoom()">🏳️ خروج</button></div>
-</section>
-
-<section id="screen-win" class="screen">
-<div class="card" style="max-width:620px;margin:0 auto;text-align:center"><div style="font-size:84px">🏆</div><h1 style="font-size:40px" id="winnerName">الفائز!</h1><p class="muted" id="winnerText"></p><div style="font-size:52px;margin:10px">🎉 🔤 🎉</div>
-<div class="row"><button class="btn btn-gold" onclick="requestRematch()">🔁 REMATCH</button><button class="btn btn-blue" onclick="goPrevGame()">⬅ BACK TO ROPE BATTLE</button></div>
-<div class="navbar"><button class="btn btn-gold" onclick="goNextGame()">▶️ NEXT GAME</button></div></div>
-</section>
-</main>
-<div class="toast" id="toast"></div>
-<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
-<script>
 /* ================= SHARED PROTOCOL — identical to index.html =================
 PeerJS Cloud 0.peerjs.com:443 secure. Host ID = ropebattle-<code>.
 Messages: hello / state / action / navigate / error.
@@ -408,10 +317,6 @@ function showWin(){if(!state)return;let g=state.game,w=g.winner??(g.total.p1>=g.
   if(isHost){if(!state)state=newState(r.p1||myName,null);if(state.status==='fill'){if(!state.game.deadline)state.game.deadline=Date.now()+120000;startLetterTimer()}setConnUI(false,'Waiting for opponent to reconnect…');showScreen('game');renderAll()}
   else{try{connectToHost('ropebattle-'+r.code,c=>c.send({type:'action',action:'hello',payload:{name:myName},slot:'p2'}),()=>toast('تعذر إعادة الاتصال — اطلب من المضيف إعادة فتح الغرفة'))}catch(e){toast('خطأ إعادة الاتصال: '+e.message)}}
 }})();
-</script>
-</body>
-</html>
-
 </script>
 </body>
 </html>

@@ -232,7 +232,7 @@ if(!msg||msg.type!=='action')return;
 if(msg.action==='hello'){let incoming=String(msg.payload?.name||'Player 2').slice(0,24);if(state.p2&&state.p2!==incoming){c.send({type:'error',message:'Room is full.'});return}if(state.status==='lobby'||state.p2===incoming){state.p2=incoming;broadcast();return}c.send({type:'error',message:'Match already started; reconnect using the same player name.'});return}
 if(msg.action==='request-navigate'){let requested=msg.payload&&msg.payload.game;let target=(requested===nextGameFile()||requested===prevGameFile())?requested:nextGameFile();if(conn&&conn.open)conn.send({type:'navigate',game:target});setTimeout(()=>{location.href=buildNavUrl(target)},350);return}
 if(msg.slot!=='p1'&&msg.slot!=='p2')return;
-if(msg.action==='start'){if(msg.slot!=='p1')return;if(!state.p2)return;state.status='playing';state.game.phase='write';if(state.mode==='math'){state.game.mathQ=genMath();state.game.mathQ.qid=String(Date.now())+'-'+Math.random().toString(36).slice(2,8);state.game.mathForRound=state.game.round;state.game.mathQ.deadline=Date.now()+5000;}broadcast();if(state.mode==='math')startMathClock();return}
+if(msg.action==='start'){if(msg.slot!=='p1')return;if(!state.p2)return;state.status='playing';state.game.phase='write';if(state.mode==='math'){state.game.mathQ=genMath();state.game.mathQ.qid=String(Date.now())+'-'+Math.random().toString(36).slice(2,8);state.game.mathForRound=state.game.round;state.game.mathQ.deadline=Date.now()+10000;}broadcast();if(state.mode==='math')startMathClock();return}
 if(msg.action==='submit-question'){if(state.status!=='playing'||state.game.phase!=='write')return;if(msg.slot!==(state.game.master===0?'p1':'p2'))return;let txt=String(msg.payload.text||'').trim();if(txt.length<3)return;state.game.currentQ={text:txt,cat:msg.payload.cat||'General',difficulty:state.game.difficulty,by:state.game.master};state.game.currentAns=null;state.game.phase='answer';broadcast();return}
 if(msg.action==='submit-answer'){if(state.status!=='playing'||state.game.phase!=='answer')return;if(msg.slot===(state.game.master===0?'p1':'p2'))return;state.game.currentAns={text:String(msg.payload.text||'').trim(),by:msg.slot==='p1'?0:1};state.game.phase='judge';broadcast();return}
 if(msg.action==='judge'){if(state.status!=='playing'||state.game.phase!=='judge')return;if(msg.slot!==(state.game.master===0?'p1':'p2'))return;applyJudge(!!msg.payload.correct);return}
@@ -261,13 +261,13 @@ function resolveMathWinner(slot){
  g.mathQ=null;g.round++;g.difficulty=g.round<=3?'Easy':g.round<=6?'Medium':'Hard';
  if(Math.abs(g.rope)>=state.winTarget||g.score1>=state.winTarget||g.score2>=state.winTarget)state.status='finished';
  broadcast();
- if(state.status==='playing')setTimeout(()=>{if(isHost&&state.status==='playing'&&state.mode==='math'&&!state.game.mathQ){state.game.mathQ=genMath();state.game.mathQ.qid=String(Date.now())+'-'+Math.random().toString(36).slice(2,8);state.game.mathForRound=state.game.round;state.game.mathQ.deadline=Date.now()+5000;broadcast();startMathClock()}},450);
+ if(state.status==='playing')setTimeout(()=>{if(isHost&&state.status==='playing'&&state.mode==='math'&&!state.game.mathQ){state.game.mathQ=genMath();state.game.mathQ.qid=String(Date.now())+'-'+Math.random().toString(36).slice(2,8);state.game.mathForRound=state.game.round;state.game.mathQ.deadline=Date.now()+10000;broadcast();startMathClock()}},450);
 }
 function resolveMathSkip(){
  const g=state.game;if(!g.mathQ||state.status!=='playing'||!isHost)return;
  clearInterval(timerInt);g.lastResult='↪ إجابة خاطئة — سؤال جديد بلا خسارة';g.mathQ=null;g.round++;
  g.difficulty=g.round<=3?'Easy':g.round<=6?'Medium':'Hard';broadcast();
- setTimeout(()=>{if(isHost&&state.status==='playing'&&state.mode==='math'&&!state.game.mathQ){state.game.mathQ=genMath();state.game.mathQ.qid=String(Date.now())+'-'+Math.random().toString(36).slice(2,8);state.game.mathForRound=state.game.round;state.game.mathQ.deadline=Date.now()+5000;broadcast();startMathClock()}},300);
+ setTimeout(()=>{if(isHost&&state.status==='playing'&&state.mode==='math'&&!state.game.mathQ){state.game.mathQ=genMath();state.game.mathQ.qid=String(Date.now())+'-'+Math.random().toString(36).slice(2,8);state.game.mathForRound=state.game.round;state.game.mathQ.deadline=Date.now()+10000;broadcast();startMathClock()}},300);
 }
 function resolveMathTimeout(){
  const g=state.game;if(!g.mathQ||state.status!=='playing'||!isHost)return;
@@ -275,17 +275,17 @@ function resolveMathTimeout(){
  // No correct answer in five seconds: the rope moves one step to the opposite side of the previous round's winner.
  const target=g.lastWinner===0?1:g.lastWinner===1?0:(g.timeoutTarget===0?0:1);
  if(target===0){g.rope=Math.max(-state.winTarget,g.rope-1);g.score1++}else{g.rope=Math.min(state.winTarget,g.rope+1);g.score2++}
- g.timeoutTarget=target===0?1:0;g.lastWinner=target;g.lastResult='⏱ انتهى الوقت — تحرك الحبل نحو '+(target===0?state.p1:state.p2);
+ g.timeoutTarget=target===0?1:0;g.lastWinner=target;g.lastResult='⏱ انتهت العشر ثوانٍ — تحرك الحبل نحو '+(target===0?state.p1:state.p2);
  g.mathQ=null;g.round++;g.difficulty=g.round<=3?'Easy':g.round<=6?'Medium':'Hard';
  if(Math.abs(g.rope)>=state.winTarget||g.score1>=state.winTarget||g.score2>=state.winTarget)state.status='finished';
  broadcast();
- if(state.status==='playing')setTimeout(()=>{if(isHost&&state.status==='playing'&&state.mode==='math'&&!state.game.mathQ){state.game.mathQ=genMath();state.game.mathQ.qid=String(Date.now())+'-'+Math.random().toString(36).slice(2,8);state.game.mathForRound=state.game.round;state.game.mathQ.deadline=Date.now()+5000;broadcast();startMathClock()}},450);
+ if(state.status==='playing')setTimeout(()=>{if(isHost&&state.status==='playing'&&state.mode==='math'&&!state.game.mathQ){state.game.mathQ=genMath();state.game.mathQ.qid=String(Date.now())+'-'+Math.random().toString(36).slice(2,8);state.game.mathForRound=state.game.round;state.game.mathQ.deadline=Date.now()+10000;broadcast();startMathClock()}},450);
 }
 function requestStart(){
  if(!isHost){sendAction('start',{});return}
  if(!state.p2){toast('Waiting for Player 2');return}
  state.status='playing';state.game.phase='write';
- if(state.mode==='math'){state.game.mathQ=genMath();state.game.mathQ.qid=String(Date.now())+'-'+Math.random().toString(36).slice(2,8);state.game.mathForRound=state.game.round;state.game.mathQ.deadline=Date.now()+5000;}
+ if(state.mode==='math'){state.game.mathQ=genMath();state.game.mathQ.qid=String(Date.now())+'-'+Math.random().toString(36).slice(2,8);state.game.mathForRound=state.game.round;state.game.mathQ.deadline=Date.now()+10000;}
  broadcast();if(state.mode==='math')startMathClock();
 }
 function requestRematch(){if(isHost){state.status='playing';state.game={rope:0,score1:0,score2:0,round:1,master:0,phase:'write',difficulty:'Easy',currentQ:null,currentAns:null,lastResult:'—',mathQ:null,mathForRound:0};broadcast()}else sendAction('rematch',{})}
@@ -304,7 +304,7 @@ function genMath(){let lvl=state.game.round<=2?1:state.game.round<=4?2:3,a,b,op,
 function renderMath(box){
  let g=state.game;
  if(!g.mathQ||g.mathForRound!==g.round){
-   if(isHost){g.mathQ=genMath();g.mathQ.qid=String(Date.now())+'-'+Math.random().toString(36).slice(2,8);g.mathForRound=g.round;g.mathQ.deadline=Date.now()+5000;g.mathQ.timeoutTarget=g.timeoutTarget||0;broadcast();startMathClock();return}
+   if(isHost){g.mathQ=genMath();g.mathQ.qid=String(Date.now())+'-'+Math.random().toString(36).slice(2,8);g.mathForRound=g.round;g.mathQ.deadline=Date.now()+10000;g.mathQ.timeoutTarget=g.timeoutTarget||0;broadcast();startMathClock();return}
    box.innerHTML='<div class="card" style="text-align:center">⏳ Waiting for the next shared question…</div>';return;
  }
  const m=g.mathQ, remaining=Math.max(0,Math.ceil((m.deadline-Date.now())/1000));

@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#10172b"><title>ROPE BATTLE · Number Hunt</title>
+<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<style>
+:root{--bg:#10172b;--panel:#1b2541;--muted:#aab7d4;--blue:#58b8ff;--red:#ff6b78;--gold:#ffd166;--green:#68e0a1}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;padding:16px;background:radial-gradient(circle at 50% 0,#304878,#10172b 60%);color:#fff;font-family:Tahoma,Arial,sans-serif}.app{max-width:900px;margin:auto}.top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:16px}.logo{font-weight:1000;font-size:clamp(23px,4vw,32px);direction:ltr}.logo span{color:var(--gold)}.status{font-size:12px;color:var(--muted);border:1px solid #ffffff25;border-radius:30px;padding:8px 12px}.panel{background:linear-gradient(145deg,#202d4e,#17213a);border:1px solid #ffffff20;border-radius:24px;padding:clamp(16px,4vw,30px);box-shadow:0 22px 60px #0006}.screen{display:none}.screen.active{display:block}h1{font-size:clamp(26px,5vw,40px);margin:0 0 8px}p{color:var(--muted);line-height:1.6}button,input{font:inherit}button{border:0;border-radius:14px;padding:13px 17px;font-weight:900;cursor:pointer}button:disabled{opacity:.45;cursor:not-allowed}.primary{background:linear-gradient(135deg,#ffd477,#ff9e4a);color:#38220b}.secondary{background:#344568;color:#fff;border:1px solid #ffffff25}.blue{background:#1688db;color:#fff}.red{background:#d94d60;color:#fff}.green{background:#16865d;color:#fff}.row{display:flex;gap:10px;flex-wrap:wrap}.row>*{flex:1}input{width:100%;padding:14px;background:#101a31;color:#fff;border:1px solid #ffffff2b;border-radius:13px;margin:8px 0 14px;text-align:center;font-size:22px;font-weight:900}.code{font-size:32px;letter-spacing:8px;color:var(--gold);font-weight:1000;text-align:center;background:#101a31;border-radius:15px;padding:16px;margin:14px 0;direction:ltr}.players{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;margin:16px 0}.player{padding:13px;border-radius:16px;background:#1688db22;border:1px solid #58b8ff66;text-align:center}.player.redp{background:#d94d6022;border-color:#ff6b7866}.player b{display:block}.player strong{font-size:27px;display:block}.muted{font-size:13px;color:var(--muted)}.card{background:#101a31;border:1px solid #ffffff20;border-radius:18px;padding:18px;margin:14px 0}.secret{font-size:clamp(42px,10vw,70px);font-weight:1000;color:var(--gold);text-align:center;letter-spacing:6px;direction:ltr}.feedback{font-size:20px;font-weight:1000;text-align:center;padding:14px;border-radius:13px;background:#253655;margin:12px 0;min-height:54px}.guesslist{display:flex;gap:7px;flex-wrap:wrap;justify-content:center}.chip{background:#304365;border:1px solid #ffffff22;border-radius:99px;padding:7px 11px;font-weight:800}.alert{background:#101a31;border:1px solid #ffffff20;border-radius:13px;padding:12px;color:var(--muted);margin:12px 0}.hidden{display:none!important}.footer{text-align:center;color:#8192b6;font-size:11px;margin:14px}@media(max-width:520px){body{padding:10px}.panel{border-radius:19px}.players{gap:7px}}
+</style></head>
+<body><main class="app">
+<header class="top"><div class="logo">ROPE <span>BATTLE</span> · NUMBER HUNT</div><div class="status" id="netStatus">● غير متصل</div></header>
+<section class="panel screen active" id="menu">
+<h1>🔢 تحدي الرقم السري</h1>
+<p>يظهر لك رقم سري بين 1 و100، وصديقك يحاول اكتشافه. وأنت تحاول اكتشاف رقمه أيضاً! لديكما 12 محاولة فقط. بعد كل تخمين ستظهر إشارة: أكبر أو أصغر.</p>
+<label>اسم اللاعب</label><input id="name" maxlength="22" placeholder="اسمك">
+<label>كود الغرفة (اتركه فارغاً لإنشاء غرفة)</label><input id="room" maxlength="5" inputmode="numeric" placeholder="12345">
+<div class="row"><button class="primary" onclick="connectRoom()">إنشاء / دخول الغرفة</button></div>
+<div class="alert" id="menuMsg">شارك كود الغرفة مع صديقك. يجب أن يكون اللاعبان في نفس الغرفة.</div>
+</section>
+<section class="panel screen" id="lobby">
+<h1>غرفة التحدي</h1><div class="code" id="code">-----</div>
+<div class="players"><div class="player"><b id="hostName">الأزرق</b><span>🔵</span></div><div style="align-self:center;color:var(--gold);font-weight:1000">VS</div><div class="player redp"><b id="guestName">بانتظار اللاعب</b><span>🔴</span></div></div>
+<div class="alert" id="lobbyMsg">بانتظار اللاعب الثاني…</div>
+<button class="primary" id="startBtn" onclick="startGame()" disabled>ابدأ التحدي</button>
+</section>
+<section class="panel screen" id="game">
+<h1>🎯 اكتشف رقم خصمك</h1>
+<div class="players">
+<div class="player"><b id="meName">أنت</b><span class="muted">رقمك السري</span><strong class="secret" id="mySecret">??</strong><span class="muted">محاولات الخصم: <b id="oppGuesses">0/12</b></span></div>
+<div style="align-self:center;color:var(--gold);font-weight:1000">VS</div>
+<div class="player redp"><b id="opName">الخصم</b><span class="muted">محاولاتك</span><strong id="myGuesses">0/12</strong><span class="muted">تخمينات متبقية</span></div>
+</div>
+<div class="card">
+<p style="text-align:center">اكتب تخمينك لرقم صديقك (من 1 إلى 100)</p>
+<input id="guessInput" type="number" min="1" max="100" placeholder="؟" inputmode="numeric">
+<button class="blue" style="width:100%" onclick="sendGuess()">إرسال التخمين</button>
+<div class="feedback" id="feedback">ابدأ التخمين!</div>
+<div class="muted" style="text-align:center">لا تتجاوز 12 محاولة.</div>
+</div>
+<div class="card"><b>سجل تخميناتك</b><div class="guesslist" id="guessList"></div></div>
+<div class="alert" id="gameMsg">كل لاعب يحاول اكتشاف رقم الآخر بشكل مستقل.</div>
+<div class="row"><button class="secondary" onclick="prevGame()">⬅ اللعبة السابقة</button><button class="secondary" onclick="nextGame()">اللعبة التالية ➡</button></div>
+</section>
+<section class="panel screen" id="result">
+<h1 id="resultTitle">🏆 انتهى التحدي</h1><p id="resultText"></p>
+<div class="row"><button class="primary" id="replayBtn" onclick="replay()" disabled>🔁 جولة جديدة</button><button class="secondary" onclick="nextGame()">اللعبة التالية ➡</button></div>
+<p class="muted" id="resultHint">المضيف هو المسؤول عن بدء جولة جديدة.</p>
+</section>
+<div class="footer">NUMBER HUNT · 12 GUESSES · 1–100</div></main>
+<script>
+'use strict';
+const $=id=>document.getElementById(id),CFG={host:'0.peerjs.com',port:443,path:'/',secure:true,debug:1};
+let peer=null,conn=null,state=null,roomCode='',myName='',mySlot='',isHost=false,secret=0,myCount=0,oppCount=0,history=[],locked=false;
+function show(id){document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));$(id).classList.add('active')}
+function msg(id,t){$(id).textContent=t}
+function status(t){msg('netStatus',t)}
+function navFile(n){return n}
+function baseParams(){return '?room='+encodeURIComponent(roomCode)+'&slot='+mySlot+'&name='+encodeURIComponent(myName)}
+function prevGame(){location.href='game1.html'+baseParams()}
+function nextGame(){if(isHost&&conn?.open)conn.send({type:'nav',file:'game3.html'});location.href='game3.html'+baseParams()}
+function send(o){if(conn?.open)conn.send(o)}
+function render(){
+ if(!state)return;
+ $('code').textContent=roomCode;$('hostName').textContent=state.p1;$('guestName').textContent=state.p2||'بانتظار اللاعب';
+ $('startBtn').disabled=!(isHost&&state.p2&&state.status==='lobby');
+ $('meName').textContent=myName;$('opName').textContent=mySlot==='p1'?state.p2:state.p1;
+ $('mySecret').textContent=secret;$('myGuesses').textContent=myCount+'/12';$('oppGuesses').textContent=oppCount+'/12';
+ $('guessList').innerHTML=history.map(x=>'<span class="chip">'+x.n+' · '+x.hint+'</span>').join('');
+ if(state.status==='lobby')show('lobby');else if(state.status==='playing')show('game');else if(state.status==='finished'){show('result');$('resultTitle').textContent=state.winner===mySlot?'🏆 فزت! اكتشفت الرقم!':'😅 انتهت محاولاتك أو فاز خصمك';$('resultText').textContent=state.winner===mySlot?'أحسنت، كنت أسرع في كشف الرقم.':'انتهت الجولة. حاول مرة أخرى!';$('replayBtn').disabled=!isHost}
+}
+function randomSecret(){return Math.floor(Math.random()*100)+1}
+function attach(c){conn=c;c.on('open',()=>{status('متصل عبر WebRTC');if(isHost){c.send({type:'state',state});}else c.send({type:'hello',name:myName})});c.on('data',onData);c.on('close',()=>status('انقطع الاتصال'))}
+function onData(m){
+ if(!m)return;
+ if(m.type==='hello'&&isHost){state.p2=String(m.name||'Player 2').slice(0,22);send({type:'state',state});render();return}
+ if(m.type==='state'&&!isHost){state=m.state;render();return}
+ if(m.type==='guess'){
+   const n=Number(m.n);oppCount=Math.min(12,oppCount+1);
+   let hint=n===secret?'correct':n<secret?'higher':'lower';
+   send({type:'feedback',n,hint,count:oppCount});
+   if(hint==='correct'){state.status='finished';state.winner=state.p1===myName?'p2':'p1';send({type:'won',winner:state.winner});render()}else if(oppCount>=12){send({type:'out',slot:mySlot==='p1'?'p2':'p1'});msg('gameMsg','انتهت محاولات خصمك!');}
+   $('oppGuesses').textContent=oppCount+'/12';return
+ }
+ if(m.type==='feedback'){let h=m.hint==='correct'?'🎉 صحيح! اكتشفت الرقم!':m.hint==='higher'?'⬆️ الرقم السري أكبر من تخمينك':'⬇️ الرقم السري أصغر من تخمينك';msg('feedback',h);history.push({n:m.n,hint:m.hint==='higher'?'أكبر':m.hint==='lower'?'أصغر':'صحيح'});myCount=m.count||myCount+1;locked=false;$('guessInput').value='';$('myGuesses').textContent=myCount+'/12';$('guessList').innerHTML=history.map(x=>'<span class="chip">'+x.n+' · '+x.hint+'</span>').join('');if(m.hint==='correct'){send({type:'won',winner:mySlot});state.status='finished';state.winner=mySlot;render()}else if(myCount>=12){msg('feedback','انتهت محاولاتك!');send({type:'out',slot:mySlot})}return}
+ if(m.type==='won'&&isHost){state.status='finished';state.winner=m.winner;send({type:'state',state});render();return}
+ if(m.type==='state'&&isHost){state=m.state;render();return}
+ if(m.type==='out'&&isHost){state.status='finished';state.winner=m.slot;send({type:'state',state});render();return}
+ if(m.type==='nav'&&!isHost){location.href=m.file+baseParams()}
+ if(m.type==='error')msg('menuMsg',m.message)
+}
+async function connectRoom(){
+ if(location.protocol==='file:'){msg('menuMsg','افتح اللعبة عبر HTTPS لتفعيل الاتصال بين هاتفين.');return}
+ let u=new URLSearchParams(location.search),code=u.get('room')||$('room').value.trim(),slot=u.get('slot')||'',name=u.get('name')||$('name').value.trim()||'Player';
+ if(code&&!/^\d{5}$/.test(code)){msg('menuMsg','كود الغرفة يجب أن يكون 5 أرقام.');return}
+ roomCode=code||String(Math.floor(10000+Math.random()*90000));myName=name.slice(0,22);mySlot=slot||(code?'p2':'p1');isHost=mySlot==='p1';
+ try{
+  if(isHost){state={status:'lobby',p1:myName,p2:null,winner:null};secret=randomSecret();await createPeer('ropebattle-'+roomCode+'-g3');status('بانتظار اللاعب الثاني');render()}
+  else{secret=randomSecret();await createPeer('ropebattle-'+roomCode+'-g3-guest-'+Math.random().toString(36).slice(2,7));let c=peer.connect('ropebattle-'+roomCode+'-g3',{reliable:true});attach(c)}
+ }catch(e){msg('menuMsg','تعذر الاتصال: '+(e.message||e))}
+}
+function createPeer(id){return new Promise((resolve,reject)=>{peer=new Peer(id,CFG);let settled=false;peer.on('open',()=>{if(!settled){settled=true;resolve()}});peer.on('error',e=>{if(!settled){settled=true;reject(e)}});peer.on('connection',c=>{if(isHost){if(conn?.open){c.send({type:'error',message:'الغرفة ممتلئة'});c.close()}else attach(c)}})})}
+function startGame(){if(!isHost||!state.p2)return;state.status='playing';state.winner=null;secret=randomSecret();myCount=0;oppCount=0;history=[];locked=false;send({type:'state',state});render();msg('gameMsg','ابدأ بتخمين الرقم السري لصديقك!')}
+function sendGuess(){if(!state||state.status!=='playing'||locked||myCount>=12)return;let n=Number($('guessInput').value);if(!Number.isInteger(n)||n<1||n>100){msg('feedback','أدخل رقماً من 1 إلى 100');return}locked=true;send({type:'guess',n});}
+function replay(){if(!isHost||state.status!=='finished')return;secret=randomSecret();myCount=0;oppCount=0;history=[];locked=false;state.status='playing';state.winner=null;send({type:'newround',state});render();msg('feedback','جولة جديدة! حاول اكتشاف الرقم.')}
+window.addEventListener('beforeunload',()=>{try{conn?.close();peer?.destroy()}catch(e){}});
+const originalOnData=onData;
+function onData(m){
+ if(!m)return;
+ if(m.type==='hello'&&isHost){state.p2=String(m.name||'Player 2').slice(0,22);send({type:'state',state});render();return}
+ if(m.type==='newround'&&!isHost){state=m.state;secret=randomSecret();myCount=0;oppCount=0;history=[];locked=false;render();msg('feedback','جولة جديدة! حاول اكتشاف الرقم.');return}
+ if(m.type==='guess'){
+   const n=Number(m.n);oppCount=Math.min(12,oppCount+1);
+   const hint=n===secret?'correct':n<secret?'higher':'lower';
+   send({type:'feedback',n,hint,count:oppCount});
+   $('oppGuesses').textContent=oppCount+'/12';
+   if(hint==='correct'){
+     state.status='finished';state.winner=(mySlot==='p1'?'p2':'p1');
+     send({type:'won',winner:state.winner});
+     if(isHost){send({type:'state',state});render()}
+   }else if(oppCount>=12){send({type:'out',slot:mySlot});}
+   return;
+ }
+ if(m.type==='feedback'){
+   const label=m.hint==='correct'?'🎉 صحيح! اكتشفت الرقم!':m.hint==='higher'?'⬆️ الرقم السري أكبر من تخمينك':'⬇️ الرقم السري أصغر من تخمينك';
+   msg('feedback',label);history.push({n:m.n,hint:m.hint==='higher'?'أكبر':m.hint==='lower'?'أصغر':'صحيح'});
+   myCount=m.count||myCount+1;locked=false;$('guessInput').value='';$('myGuesses').textContent=myCount+'/12';
+   $('guessList').innerHTML=history.map(x=>'<span class="chip">'+x.n+' · '+x.hint+'</span>').join('');
+   if(m.hint==='correct'){state.status='finished';state.winner=mySlot;send({type:'won',winner:mySlot});if(isHost){send({type:'state',state});render()}}
+   else if(myCount>=12)msg('feedback','انتهت محاولاتك! انتظر نتيجة خصمك.');
+   return;
+ }
+ if(m.type==='won'){
+   if(isHost){state.status='finished';state.winner=m.winner;send({type:'state',state});render()}
+   else{state.status='finished';state.winner=m.winner;render()}
+   return;
+ }
+ if(m.type==='out'){
+   if(isHost){state.status='finished';state.winner=m.slot;send({type:'state',state});render()}
+   return;
+ }
+ if(m.type==='state'){state=m.state;render();return}
+ if(m.type==='nav'){location.href=m.file+baseParams();return}
+ if(m.type==='error')msg('menuMsg',m.message);
+}
+</script></body></html>

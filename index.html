@@ -124,132 +124,7 @@ textarea{min-height:96px;resize:vertical}
 <div class="toast" id="toast"></div>
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 <script>
-<!DOCTYPE html>
-<html lang="en" dir="ltr">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>ROPE BATTLE — Game 1</title>
-<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Inter:wght@600;700;800&family=Cairo:wght@700;800&display=swap" rel="stylesheet">
-<style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:Inter,system-ui,sans-serif;background:radial-gradient(800px 400px at 15% -10%,#1a3a6e,transparent 60%),#071226;color:#fff;min-height:100vh}
-body.ar{font-family:Cairo,Inter,sans-serif}
-.topbar{max-width:1120px;margin:0 auto;padding:14px 16px;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center}
-.logo b{font-family:"Baloo 2";font-size:22px}.logo b i{font-style:normal;color:#ffc93c}
-.pill{border:1px solid #223f6e;background:#0f244a;color:#fff;padding:9px 12px;border-radius:999px;cursor:pointer;font-weight:700;font-size:13px}
-.pill.gold{background:#ffc93c;color:#1a1000;border-color:#ffc93c}.pill:disabled{opacity:.5}
-.wrap{max-width:1120px;margin:0 auto;padding:6px 16px 30px}
-.screen{display:none}.screen.show{display:block;animation:f .3s ease}@keyframes f{from{opacity:0;transform:translateY(8px)}to{opacity:1}}
-.card{background:linear-gradient(180deg,#132c52,#0d1f3f);border:1px solid #254a7a;border-radius:22px;padding:20px;box-shadow:0 20px 50px rgba(0,0,0,.35)}
-h1{font-family:"Baloo 2";font-size:clamp(46px,7vw,72px);line-height:.9}h1 span{color:#ffc93c}
-label{font-size:12px;color:#a9bddb;font-weight:800;display:block;margin:13px 0 6px;text-transform:uppercase;letter-spacing:.05em}
-input,select,textarea{width:100%;background:#081a38;border:1px solid #2b4c7e;color:#fff;padding:14px;border-radius:14px;outline:none;font-size:15px}
-textarea{min-height:96px;resize:vertical}
-.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}@media(max-width:560px){.row{grid-template-columns:1fr}}
-.btn{border:0;cursor:pointer;border-radius:14px;padding:15px;font-weight:900;font-size:15px;display:flex;justify-content:center;gap:8px;width:100%}
-.btn-blue{background:linear-gradient(180deg,#2ea6ff,#0077ff);color:#fff}.btn-gold{background:linear-gradient(180deg,#ffd34d,#ff8a00);color:#231300}
-.btn-ghost{background:#ffffff12;color:#fff;border:1px solid #ffffff22}.btn-green{background:linear-gradient(180deg,#2ee06a,#059669);color:#fff}
-.btn-red{background:linear-gradient(180deg,#ff5a6a,#e11d48);color:#fff}.btn:disabled{opacity:.5}
-.muted{color:#9fb3d6;font-size:13px;line-height:1.6}
-.alert{background:#fff7d6;color:#5a3b00;border:1px solid #ffd34d;padding:11px;border-radius:12px;font-size:13px;line-height:1.6;margin-top:12px}
-.alert.danger{background:#ffe4e6;color:#7f1d1d;border-color:#fda4af}.alert.ok{background:#dcfce7;color:#14532d;border-color:#86efac}
-.code{font-family:"Baloo 2";font-size:52px;letter-spacing:10px;text-align:center;color:#ffc93c;background:#081a38;border:2px dashed #ffc93c66;border-radius:16px;padding:8px;margin:12px 0}
-.players{display:grid;grid-template-columns:1fr 1fr;gap:12px}.pbox{border-radius:16px;padding:14px;text-align:center;border:1px solid #ffffff22}
-.pbox.blue{background:#1a6cff}.pbox.red{background:#ff4d6d}
-.scoreboard{display:flex;gap:10px;flex-wrap:wrap}.score{flex:1;min-width:160px;border-radius:18px;padding:12px;display:flex;gap:12px;align-items:center;border:1px solid #ffffff22}
-.score.blue{background:#0a4bc2}.score.red{background:#c81e3f}.score .pts{margin-inline-start:auto;font-family:"Baloo 2";font-size:28px}
-.center-card{text-align:center;min-width:180px}.timer{font-family:"Baloo 2";font-size:30px;color:#ffc93c}
-.arena{margin-top:14px;border-radius:20px;overflow:hidden;border:1px solid #254a7a}
-.arena-top{height:200px;background:linear-gradient(90deg,#1a6cff 0 50%,#ff2d55 50% 100%);position:relative;overflow:hidden}
-.grass{position:absolute;left:0;right:0;bottom:0;height:42px;background:#1e6b2e;border-top:3px solid #ffd34d}
-.center-line{position:absolute;left:50%;top:0;bottom:42px;width:6px;background:#fff;transform:translateX(-50%);box-shadow:0 0 0 4px #ffd34d;z-index:2}
-.rope-wrap{position:absolute;left:50%;top:112px;width:80%;height:14px;transform:translate(-50%,-50%);z-index:3;transition:transform .7s}
-.rope{height:14px;background:repeating-linear-gradient(90deg,#f8d98a 0 18px,#d9a93f 18px 22px);border-radius:999px;position:relative}
-.rope:before{content:"🎀";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:20px}
-.player{position:absolute;bottom:42px;transform:translateX(-50%);text-align:center;z-index:4;transition:left .7s}
-.player .char{font-size:60px;display:block;animation:p .7s infinite alternate}@keyframes p{from{transform:rotate(-3deg)}to{transform:rotate(3deg)}}
-.player .name{font-size:12px;font-weight:900;background:#071226cc;padding:4px 8px;border-radius:999px;white-space:nowrap}
-.arena-bottom{display:flex;gap:10px;padding:12px;background:#081a38;flex-wrap:wrap}
-.stat{flex:1;min-width:110px;background:#12294d;border-radius:12px;padding:10px;text-align:center}.stat b{display:block}.stat span{font-size:11px;color:#9fb3d6;text-transform:uppercase}
-.qcard{background:#fff;color:#111;border-radius:18px;padding:18px}.qcard p{margin:10px 0;line-height:1.6}
-.tag{display:inline-block;background:#7c3aed;color:#fff;padding:6px 10px;border-radius:999px;font-size:12px;font-weight:900}
-.judge{display:flex;gap:10px}.judge .btn{flex:1}
-.navbar{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}.navbar .btn{flex:1}
-.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:#fff;color:#111;padding:12px 16px;border-radius:999px;font-weight:800;z-index:99;display:none;max-width:92vw;text-align:center}
-.hidden{display:none!important}.dot{width:10px;height:10px;border-radius:50%;display:inline-block;background:#f59e0b}.dot.on{background:#22c55e}.dot.off{background:#ef4444}
-</style>
-</head>
-<body>
-<header class="topbar">
-<div class="logo">🪢 <b>ROPE <i>BATTLE</i></b> <span style="font-size:11px;background:#ff8a0022;border:1px solid #ff8a0055;color:#ffd59a;padding:5px 9px;border-radius:999px">PEERJS • NO FIREBASE • GAME 1</span></div>
-<div style="display:flex;gap:8px;flex-wrap:wrap">
-<span class="pill"><span class="dot" id="connDot"></span> <span id="connLabel">Not connected</span></span>
-<button class="pill" id="langBtn">العربية</button>
-<button class="pill" id="soundBtn">🔊 Sound</button>
-<button class="pill" id="backBtn" onclick="goPrevGame()" disabled>⬅ BACK</button>
-<button class="pill gold" onclick="goNextGame()">▶️ NEXT GAME</button>
-</div>
-</header>
-<main class="wrap">
-<section id="screen-menu" class="screen show">
-<div class="card">
-<h1>ROPE<br><span>BATTLE</span> 🪢</h1>
-<p class="muted" style="margin:10px 0">Win a challenge, pull the rope. Question Master writes the question. Opponent answers. <b style="color:#fff">Only the Master judges — never auto-judged.</b> Host is authoritative. Guest sends actions only.</p>
-<label>Your Player Name</label>
-<input id="playerName" placeholder="e.g. Adam" maxlength="20">
-<div class="row">
-<div><label>Game Mode</label><select id="gameMode"><option value="master">✍️ Question Master</option><option value="math">🧮 Quick Math</option></select></div>
-<div><label>Rope Pulls To Win</label><select id="winTarget"><option value="3">3 — Quick</option><option value="5" selected>5 — Classic</option><option value="7">7 — Epic</option></select></div>
-</div>
-<div class="row" style="margin-top:14px"><button class="btn btn-blue" onclick="createRoom()">➕ CREATE ROOM</button><button class="btn btn-gold" onclick="showScreen('join')">🚪 JOIN ROOM</button></div>
-<div class="navbar"><button class="btn btn-gold" onclick="goNextGame()">▶️ NEXT GAME — Letter Challenge</button></div>
-<div class="alert">🌐 <b>How it works:</b> Host clicks CREATE ROOM → gets a 5-digit code → shares it. Guest opens this page on another phone, enters the code → PeerJS connects directly to the host. <b>Connected</b> appears only after WebRTC <code>open</code>. No Firebase, no database, no simulated connection.</div>
-<div class="alert danger hidden" id="reconnectBanner">🔄 Reconnecting to your previous room…</div>
-</div>
-</section>
 
-<section id="screen-join" class="screen">
-<div class="card" style="max-width:560px;margin:0 auto"><h2>🚪 Join Room</h2><p class="muted">Enter the host's 5-digit code. If the room does not exist you will see a clear error.</p>
-<label>Room Code (5 digits)</label><input id="joinCode" placeholder="12345" maxlength="5" inputmode="numeric">
-<label>Your Name (Player 2)</label><input id="joinName" placeholder="e.g. Salma" maxlength="20">
-<div id="joinError" class="alert danger hidden"></div>
-<button class="btn btn-gold" style="margin-top:14px" onclick="joinRoom()">✅ Join Room</button>
-<button class="btn btn-ghost" style="margin-top:10px" onclick="showScreen('menu')">← Back</button></div>
-</section>
-
-<section id="screen-lobby" class="screen">
-<div class="card" style="max-width:680px;margin:0 auto"><h2 style="text-align:center">🏠 Waiting Room</h2><p class="muted" style="text-align:center" id="lobbyLine">Share this code</p>
-<div class="code" id="roomCodeDisplay">-----</div>
-<div style="display:flex;gap:10px"><button class="btn btn-ghost" onclick="copyCode()">📋 Copy Code</button><button class="btn btn-ghost" onclick="shareCode()">🔗 Share</button></div>
-<div class="players" style="margin-top:14px"><div class="pbox blue"><div style="font-size:36px">🧑‍🦰</div><h3 id="lobbyP1">Player 1</h3><p>HOST</p></div><div class="pbox red" id="lobbyP2Box" style="opacity:.6"><div style="font-size:36px">👤</div><h3 id="lobbyP2">Waiting…</h3><p id="lobbyP2Status">Waiting for Player 2…</p></div></div>
-<div class="alert" id="lobbyAlert"></div>
-<button class="btn btn-green" id="startBtn" disabled onclick="requestStart()">🚀 Start Game</button>
-<div class="navbar"><button class="btn btn-ghost" onclick="goPrevGame()" id="lobbyBackBtn" disabled>⬅ BACK</button><button class="btn btn-gold" onclick="goNextGame()">▶️ NEXT GAME</button></div>
-<button class="btn btn-ghost" style="margin-top:10px" onclick="leaveRoom()">← Leave Room</button></div>
-</section>
-
-<section id="screen-game" class="screen">
-<div class="scoreboard">
-<div class="score blue"><span style="font-size:32px">🧑‍🦰</span><div><h3 id="gP1Name">P1</h3><p>Pulls: <b id="gP1Score">0</b> / <span class="winNeed">5</span> • <span id="p1Role">—</span></p></div><div class="pts" id="gP1Pts">0</div></div>
-<div class="score center-card"><div>ROUND <b id="roundNum">1</b> • <span id="diffLabel">Easy</span></div><div class="timer" id="timer">⏱ 45</div><div class="muted" id="turnLabel">Master: —</div></div>
-<div class="score red"><span style="font-size:32px">🧑‍🦱</span><div><h3 id="gP2Name">P2</h3><p>Pulls: <b id="gP2Score">0</b> / <span class="winNeed">5</span> • <span id="p2Role">—</span></p></div><div class="pts" id="gP2Pts">0</div></div>
-</div>
-<div class="arena"><div class="arena-top"><div class="center-line"></div><div class="player" id="player1El" style="left:22%"><span class="char">🧑‍🦰</span><span class="name" id="arenaP1">P1</span></div><div class="player" id="player2El" style="left:78%"><span class="char">🧑‍🦱</span><span class="name" id="arenaP2">P2</span></div><div class="rope-wrap" id="ropeWrap"><div class="rope"></div></div><div class="grass"></div></div>
-<div class="arena-bottom"><div class="stat"><b id="ropePosLabel">0</b><span>Rope</span></div><div class="stat"><b id="modeLabel">Master</b><span>Mode</span></div><div class="stat"><b id="codeLabel">-----</b><span>Room</span></div><div class="stat"><b id="streakLabel">—</b><span>Last</span></div></div></div>
-<div id="phaseBox" style="margin-top:14px"></div>
-<div class="navbar"><button class="btn btn-ghost" onclick="goPrevGame()" disabled>⬅ BACK</button><button class="btn btn-gold" onclick="goNextGame()">▶️ NEXT GAME</button><button class="btn btn-ghost" onclick="leaveRoom()">🏳️ Leave</button></div>
-</section>
-
-<section id="screen-win" class="screen">
-<div class="card" style="max-width:620px;margin:0 auto;text-align:center"><div style="font-size:84px">🏆</div><h1 style="font-size:40px" id="winnerName">WINNER!</h1><p class="muted" id="winnerText"></p><div style="font-size:52px;margin:10px">🎉 🪢 🎉</div>
-<div class="row"><button class="btn btn-gold" onclick="requestRematch()">🔁 REMATCH</button><button class="btn btn-blue" onclick="showScreen('menu')">🏠 Menu</button></div>
-<div class="navbar"><button class="btn btn-ghost" onclick="goPrevGame()" disabled>⬅ BACK</button><button class="btn btn-gold" onclick="goNextGame()">▶️ NEXT GAME</button></div></div>
-</section>
-</main>
-<div class="toast" id="toast"></div>
-<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
-<script>
 /* ================= SHARED PROTOCOL (identical in every game file) =================
 PeerJS Cloud: host 0.peerjs.com, port 443, secure true, path / — free, no key.
 Host Peer ID = 'ropebattle-' + 5-digit code. Guest Peer ID = 'ropebattle-'+code+'-guest-'+random.
@@ -339,9 +214,15 @@ function connectToHost(hostId,onOpen,onFail){
   return ()=>{stopped=true};
 }
 function attachConn(c){conn=c;c.on('open',()=>{setConnUI(true,'Connected (WebRTC)');if(isHost)sendState()});c.on('data',msg=>{if(isHost)handleAction(msg,c);else handleHostMessage(msg)});c.on('close',()=>{setConnUI(false,'Peer disconnected');toast('⚠️ Opponent disconnected. They can reload to reconnect — same code.');});c.on('error',()=>setConnUI(false,'Connection error'))}
-function sendState(){if(conn&&conn.open&&state)conn.send({type:'state',state})}
+function sendState(){
+ if(!conn||!conn.open||!state)return;
+ let outgoing=JSON.parse(JSON.stringify(state));
+ // Never send the arithmetic answer to the guest device.
+ if(outgoing.mode==='math'&&outgoing.game.mathQ)delete outgoing.game.mathQ.ans;
+ conn.send({type:'state',state:outgoing});
+}
 function sendAction(action,payload){if(!conn||!conn.open){toast('Not connected yet — wait for Connected.');return false}conn.send({type:'action',action,payload,slot:mySlot});return true}
-function newState(p1,mode,winTarget){return{code:roomCode,gameId:'rope',mode,winTarget,status:'lobby',p1:p1,p2:null,game:{rope:0,score1:0,score2:0,round:1,master:0,phase:'write',difficulty:'Easy',currentQ:null,currentAns:null,lastResult:'—',mathQ:null,mathForRound:0}}}
+function newState(p1,mode,winTarget){return{code:roomCode,gameId:'rope',mode,winTarget,status:'lobby',p1:p1,p2:null,game:{rope:0,score1:0,score2:0,round:1,master:0,phase:'write',difficulty:'Easy',currentQ:null,currentAns:null,lastResult:'—',mathQ:null,mathForRound:0,timeoutTarget:0,lastWinner:null}}}
 function broadcast(){saveSession();if(isHost)sendState();renderAll()}
 function renderAll(){if(!state)return;$('roomCodeDisplay').textContent=state.code;$('codeLabel').textContent=state.code;if(state.status==='lobby')renderLobby();else if(state.status==='playing')renderGame();else if(state.status==='finished')showWin()}
 async function createRoom(){if(location.protocol==='file:'){toast('For online multiplayer, open this game through HTTPS hosting or http://localhost, not by double-clicking the file.');return}myName=$('playerName').value.trim()||'Player 1';roomCode=String(Math.floor(10000+Math.random()*90000));mySlot='p1';isHost=true;let mode=$('gameMode').value,wt=parseInt($('winTarget').value);state=newState(myName,mode,wt);saveSession();try{await makePeer('ropebattle-'+roomCode)}catch(e){toast('❌ Could not start signaling. Check internet and reload.');return}setConnUI(false,'Waiting for Player 2…');$('lobbyLine').textContent='🌐 Share this code. Guest must enter it on their device.';$('lobbyAlert').className='alert';$('lobbyAlert').innerHTML='⏳ <b>Waiting for Player 2.</b> You are the HOST. State is authoritative on this device.';$('startBtn').disabled=true;showScreen('lobby');renderLobby();play(700);toast('Room '+roomCode+' created')}
@@ -351,18 +232,62 @@ if(!msg||msg.type!=='action')return;
 if(msg.action==='hello'){let incoming=String(msg.payload?.name||'Player 2').slice(0,24);if(state.p2&&state.p2!==incoming){c.send({type:'error',message:'Room is full.'});return}if(state.status==='lobby'||state.p2===incoming){state.p2=incoming;broadcast();return}c.send({type:'error',message:'Match already started; reconnect using the same player name.'});return}
 if(msg.action==='request-navigate'){let requested=msg.payload&&msg.payload.game;let target=(requested===nextGameFile()||requested===prevGameFile())?requested:nextGameFile();if(conn&&conn.open)conn.send({type:'navigate',game:target});setTimeout(()=>{location.href=buildNavUrl(target)},350);return}
 if(msg.slot!=='p1'&&msg.slot!=='p2')return;
-if(msg.action==='start'){if(msg.slot!=='p1')return;if(!state.p2)return;state.status='playing';state.game.phase='write';broadcast();return}
+if(msg.action==='start'){if(msg.slot!=='p1')return;if(!state.p2)return;state.status='playing';state.game.phase='write';if(state.mode==='math'){state.game.mathQ=genMath();state.game.mathQ.qid=String(Date.now())+'-'+Math.random().toString(36).slice(2,8);state.game.mathForRound=state.game.round;state.game.mathQ.deadline=Date.now()+5000;}broadcast();if(state.mode==='math')startMathClock();return}
 if(msg.action==='submit-question'){if(state.status!=='playing'||state.game.phase!=='write')return;if(msg.slot!==(state.game.master===0?'p1':'p2'))return;let txt=String(msg.payload.text||'').trim();if(txt.length<3)return;state.game.currentQ={text:txt,cat:msg.payload.cat||'General',difficulty:state.game.difficulty,by:state.game.master};state.game.currentAns=null;state.game.phase='answer';broadcast();return}
 if(msg.action==='submit-answer'){if(state.status!=='playing'||state.game.phase!=='answer')return;if(msg.slot===(state.game.master===0?'p1':'p2'))return;state.game.currentAns={text:String(msg.payload.text||'').trim(),by:msg.slot==='p1'?0:1};state.game.phase='judge';broadcast();return}
 if(msg.action==='judge'){if(state.status!=='playing'||state.game.phase!=='judge')return;if(msg.slot!==(state.game.master===0?'p1':'p2'))return;applyJudge(!!msg.payload.correct);return}
-if(msg.action==='answer-math'){if(state.status!=='playing'||state.game.mode!=='math')return;if(msg.slot===(state.game.master===0?'p1':'p2'))return;applyMathAnswer(msg.payload.value);return}
+if(msg.action==='answer-math'){
+ if(state.status!=='playing'||state.game.mode!=='math'||!state.game.mathQ)return;
+ const g=state.game, q=g.mathQ, slot=msg.slot, value=Number(msg.payload?.value);
+ if(slot!=='p1'&&slot!=='p2')return;
+ if(msg.payload?.qid!==q.qid)return;
+ if(Date.now()>q.deadline){resolveMathTimeout();return}
+ if(!Number.isFinite(value)||value!==q.ans){resolveMathSkip();return} // Wrong answer advances to a fresh shared question without penalty.
+ resolveMathWinner(slot);return
+}
 if(msg.action==='rematch'){if(state.status!=='finished')return;state.status='playing';state.game={rope:0,score1:0,score2:0,round:1,master:0,phase:'write',difficulty:'Easy',currentQ:null,currentAns:null,lastResult:'—',mathQ:null,mathForRound:0};broadcast();return}
 if(msg.action==='set-difficulty'){if(msg.slot!==(state.game.master===0?'p1':'p2'))return;if(['Easy','Medium','Hard'].includes(msg.payload.difficulty))state.game.difficulty=msg.payload.difficulty;broadcast();return}
 }
-function handleHostMessage(msg){if(!msg)return;if(msg.type==='state'){state=msg.state;saveSession();renderAll();return}if(msg.type==='navigate'){saveSession();let target=msg.game||nextGameFile();setTimeout(()=>{location.href=buildNavUrl(target)},200);return}if(msg.type==='error'){toast('❌ '+msg.message);setConnUI(false,'Error');return}}
+function handleHostMessage(msg){if(!msg)return;if(msg.type==='state'){state=msg.state;saveSession();renderAll();if(state.mode==='math'&&state.status==='playing'&&state.game.mathQ)startMathClock();return}if(msg.type==='navigate'){saveSession();let target=msg.game||nextGameFile();setTimeout(()=>{location.href=buildNavUrl(target)},200);return}if(msg.type==='error'){toast('❌ '+msg.message);setConnUI(false,'Error');return}}
 function applyJudge(correct){let g=state.game,master=g.master;g.round++;g.difficulty=g.round<=2?'Easy':g.round<=4?'Medium':'Hard';if(correct){let w=master===0?1:0;if(w===0){g.rope--;g.score1++}else{g.rope++;g.score2++}g.master=w;g.lastResult='✅ Correct! New Master!'}else{if(master===0){g.rope--;g.score1++}else{g.rope++;g.score2++}g.lastResult='❌ Wrong! Master keeps crown'}g.phase='write';g.currentQ=null;g.currentAns=null;if(Math.abs(g.rope)>=state.winTarget||g.score1>=state.winTarget||g.score2>=state.winTarget)state.status='finished';broadcast()}
-function applyMathAnswer(val){let g=state.game,m=g.mathQ;if(!m)return;let answering=g.master===0?1:0;g.round++;g.difficulty=g.round<=2?'Easy':g.round<=4?'Medium':'Hard';if(val===m.ans){if(answering===0){g.rope--;g.score1++}else{g.rope++;g.score2++}g.master=answering;g.lastResult='✅ Correct!'}else{if(g.master===0){g.rope--;g.score1++}else{g.rope++;g.score2++}g.lastResult='❌ Wrong!'}g.mathQ=null;g.phase='write';if(Math.abs(g.rope)>=state.winTarget||g.score1>=state.winTarget||g.score2>=state.winTarget)state.status='finished';broadcast()}
-function requestStart(){if(isHost){if(!state.p2){toast('Waiting for Player 2');return}state.status='playing';state.game.phase='write';broadcast()}else sendAction('start',{})}
+function applyMathAnswer(val){if(!isAnswererMe())return;if(isHost)resolveMathWinner(mySlot);else sendAction('answer-math',{value:val})}
+function resolveMathWinner(slot){
+ const g=state.game;if(!g.mathQ||state.status!=='playing')return;
+ clearInterval(timerInt);
+ const winner=slot==='p1'?0:1;
+ if(winner===0){g.rope=Math.max(-state.winTarget,g.rope-1);g.score1++}
+ else{g.rope=Math.min(state.winTarget,g.rope+1);g.score2++}
+ g.master=winner;g.lastWinner=winner;g.lastResult='⚡ '+(winner===0?state.p1:state.p2)+' answered first!';
+ g.mathQ=null;g.round++;g.difficulty=g.round<=3?'Easy':g.round<=6?'Medium':'Hard';
+ if(Math.abs(g.rope)>=state.winTarget||g.score1>=state.winTarget||g.score2>=state.winTarget)state.status='finished';
+ broadcast();
+ if(state.status==='playing')setTimeout(()=>{if(isHost&&state.status==='playing'&&state.mode==='math'&&!state.game.mathQ){state.game.mathQ=genMath();state.game.mathQ.qid=String(Date.now())+'-'+Math.random().toString(36).slice(2,8);state.game.mathForRound=state.game.round;state.game.mathQ.deadline=Date.now()+5000;broadcast();startMathClock()}},450);
+}
+function resolveMathSkip(){
+ const g=state.game;if(!g.mathQ||state.status!=='playing'||!isHost)return;
+ clearInterval(timerInt);g.lastResult='↪ إجابة خاطئة — سؤال جديد بلا خسارة';g.mathQ=null;g.round++;
+ g.difficulty=g.round<=3?'Easy':g.round<=6?'Medium':'Hard';broadcast();
+ setTimeout(()=>{if(isHost&&state.status==='playing'&&state.mode==='math'&&!state.game.mathQ){state.game.mathQ=genMath();state.game.mathQ.qid=String(Date.now())+'-'+Math.random().toString(36).slice(2,8);state.game.mathForRound=state.game.round;state.game.mathQ.deadline=Date.now()+5000;broadcast();startMathClock()}},300);
+}
+function resolveMathTimeout(){
+ const g=state.game;if(!g.mathQ||state.status!=='playing'||!isHost)return;
+ clearInterval(timerInt);
+ // No correct answer in five seconds: the rope moves one step to the opposite side of the previous round's winner.
+ const target=g.lastWinner===0?1:g.lastWinner===1?0:(g.timeoutTarget===0?0:1);
+ if(target===0){g.rope=Math.max(-state.winTarget,g.rope-1);g.score1++}else{g.rope=Math.min(state.winTarget,g.rope+1);g.score2++}
+ g.timeoutTarget=target===0?1:0;g.lastWinner=target;g.lastResult='⏱ انتهى الوقت — تحرك الحبل نحو '+(target===0?state.p1:state.p2);
+ g.mathQ=null;g.round++;g.difficulty=g.round<=3?'Easy':g.round<=6?'Medium':'Hard';
+ if(Math.abs(g.rope)>=state.winTarget||g.score1>=state.winTarget||g.score2>=state.winTarget)state.status='finished';
+ broadcast();
+ if(state.status==='playing')setTimeout(()=>{if(isHost&&state.status==='playing'&&state.mode==='math'&&!state.game.mathQ){state.game.mathQ=genMath();state.game.mathQ.qid=String(Date.now())+'-'+Math.random().toString(36).slice(2,8);state.game.mathForRound=state.game.round;state.game.mathQ.deadline=Date.now()+5000;broadcast();startMathClock()}},450);
+}
+function requestStart(){
+ if(!isHost){sendAction('start',{});return}
+ if(!state.p2){toast('Waiting for Player 2');return}
+ state.status='playing';state.game.phase='write';
+ if(state.mode==='math'){state.game.mathQ=genMath();state.game.mathQ.qid=String(Date.now())+'-'+Math.random().toString(36).slice(2,8);state.game.mathForRound=state.game.round;state.game.mathQ.deadline=Date.now()+5000;}
+ broadcast();if(state.mode==='math')startMathClock();
+}
 function requestRematch(){if(isHost){state.status='playing';state.game={rope:0,score1:0,score2:0,round:1,master:0,phase:'write',difficulty:'Easy',currentQ:null,currentAns:null,lastResult:'—',mathQ:null,mathForRound:0};broadcast()}else sendAction('rematch',{})}
 function leaveRoom(){try{conn&&conn.close()}catch(e){}try{peer&&peer.destroy()}catch(e){}state=null;roomCode='';mySlot=null;sessionStorage.removeItem('rb_code');showScreen('menu')}
 function renderLobby(){$('lobbyP1').textContent=state.p1+' (Host)';$('lobbyP2').textContent=state.p2||'Waiting…';$('lobbyP2Box').style.opacity=state.p2?1:.6;$('lobbyP2Status').textContent=state.p2?'✅ Connected':'Waiting for Player 2…';$('startBtn').disabled=!state.p2;$('lobbyAlert').className='alert '+(state.p2?'ok':'');$('lobbyAlert').innerHTML=state.p2?'✅ <b>Both connected.</b> Host can start.':'⏳ Waiting…';showScreen('lobby')}
@@ -376,22 +301,55 @@ function submitA(){if(!isAnswererMe()){toast('Only the answerer answers.');retur
 function judge(c){if(!isMasterMe()){toast('⛔ Only the Master can judge.');return}if(isHost)applyJudge(c);else sendAction('judge',{correct:c})}
 function showWin(){if(!state)return;let g=state.game;let w=g.score1>g.score2?0:1;if(g.score1>=state.winTarget&&g.score1>g.score2)w=0;if(g.score2>=state.winTarget&&g.score2>g.score1)w=1;let n=w===0?state.p1:state.p2;$('winnerName').textContent='🏆 '+n+' WINS!';$('winnerText').textContent=`Score: ${state.p1} ${g.score1} — ${g.score2} ${state.p2} • ${g.round} rounds`;showScreen('win');play(800)}
 function genMath(){let lvl=state.game.round<=2?1:state.game.round<=4?2:3,a,b,op,ans,ops=lvl===1?['+','-']:lvl===2?['+','-','×']:['+','-','×','÷'];op=ops[Math.floor(Math.random()*ops.length)];if(op==='+'){a=2+Math.floor(Math.random()*lvl*12);b=2+Math.floor(Math.random()*lvl*12);ans=a+b}else if(op==='-'){a=5+Math.floor(Math.random()*lvl*15);b=1+Math.floor(Math.random()*a);ans=a-b}else if(op==='×'){a=2+Math.floor(Math.random()*(3+lvl*2));b=2+Math.floor(Math.random()*(3+lvl*2));ans=a*b}else{b=2+Math.floor(Math.random()*8);ans=2+Math.floor(Math.random()*9);a=b*ans}let arr=[ans];while(arr.length<4){let v=ans+Math.floor(Math.random()*11)-5;if(v!==ans&&!arr.includes(v)&&v>=0)arr.push(v)}arr.sort(()=>Math.random()-.5);return{q:`${a} ${op} ${b} = ?`,ans,opts:arr,level:lvl}}
-function renderMath(box){let g=state.game;if(!g.mathQ||g.mathForRound!==g.round){if(isHost){g.mathQ=genMath();g.mathForRound=g.round;broadcast();return}else{box.innerHTML=`<div class="card" style="text-align:center">⏳ Waiting for host to generate question…</div>`;return}}let m=g.mathQ;if(!isAnswererMe()){box.innerHTML=`<div class="card" style="text-align:center"><h3>🧮 ${m.q}</h3><p class="muted">Waiting for opponent to answer…</p></div>`;return}box.innerHTML=`<div class="qcard"><span class="tag">🧮 Quick Math • Level ${m.level}</span><h3 style="font-size:32px;text-align:center;margin-top:12px">${m.q}</h3><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px">${m.opts.map(o=>`<button class="btn btn-ghost" style="color:#111;background:#f8fafc;border:2px solid #e5e7eb" onclick="answerMath(${o})">${o}</button>`).join('')}</div></div>`}
-function answerMath(v){if(!isAnswererMe())return;if(isHost)applyMathAnswer(v);else sendAction('answer-math',{value:v})}
+function renderMath(box){
+ let g=state.game;
+ if(!g.mathQ||g.mathForRound!==g.round){
+   if(isHost){g.mathQ=genMath();g.mathQ.qid=String(Date.now())+'-'+Math.random().toString(36).slice(2,8);g.mathForRound=g.round;g.mathQ.deadline=Date.now()+5000;g.mathQ.timeoutTarget=g.timeoutTarget||0;broadcast();startMathClock();return}
+   box.innerHTML='<div class="card" style="text-align:center">⏳ Waiting for the next shared question…</div>';return;
+ }
+ const m=g.mathQ, remaining=Math.max(0,Math.ceil((m.deadline-Date.now())/1000));
+ box.innerHTML=`<div class="qcard" style="text-align:center">
+   <span class="tag">🧮 SPEED CAPTCHA • ${m.level===1?'EASY':m.level===2?'MEDIUM':'HARD'}</span>
+   <div style="font-size:16px;font-weight:800;margin-top:10px">السؤال نفسه للاعبين في نفس اللحظة</div>
+   <h3 style="font-size:clamp(36px,8vw,58px);margin:12px 0">${esc(m.q)}</h3>
+   <div style="font-size:42px;font-weight:1000;color:#ffc93c" id="mathCountdown">${remaining}</div>
+   <div style="color:#64748b;font-size:12px;margin-bottom:12px">ثوانٍ متبقية</div>
+   <form onsubmit="event.preventDefault();answerMathFromInput()">
+    <input id="mathAnswerInput" inputmode="numeric" autocomplete="off" placeholder="اكتب الإجابة…" style="width:100%;max-width:300px;text-align:center;font-size:24px;font-weight:900;padding:13px;border-radius:14px;border:2px solid #cbd5e1;color:#111">
+    <button class="btn btn-gold" type="submit" style="margin:10px auto 0;display:block">إرسال الإجابة</button>
+   </form>
+   <div id="mathFeedback" class="muted" style="min-height:24px;margin-top:8px">أجب بسرعة! الإجابة الخاطئة لا تُقصيك.</div>
+   <div class="muted" style="font-size:12px">🔵 ${esc(state.p1)}: ينافس الآن &nbsp; 🔴 ${esc(state.p2||'اللاعب 2')}: ينافس الآن</div>
+ </div>`;
+}
+function answerMathFromInput(){const el=$('mathAnswerInput');if(!el)return;const v=el.value.trim();if(!/^\d+$/.test(v)){const f=$('mathFeedback');if(f)f.textContent='اكتب رقماً صحيحاً.';return}answerMath(Number(v))}
+function startMathClock(){
+ clearInterval(timerInt);
+ timerInt=setInterval(()=>{
+  if(!state||state.status!=='playing'||state.mode!=='math'||!state.game.mathQ){clearInterval(timerInt);return}
+  const left=Math.max(0,Math.ceil((state.game.mathQ.deadline-Date.now())/1000));
+  const el=$('mathCountdown');if(el)el.textContent=left;
+  if(isHost&&Date.now()>=state.game.mathQ.deadline)resolveMathTimeout();
+ },100);
+}
+
+function answerMath(v){
+ if(!state||state.status!=='playing'||state.mode!=='math'||!state.game.mathQ)return;
+ if(Date.now()>state.game.mathQ.deadline){if(isHost)resolveMathTimeout();return}
+ if(isHost){if(Number(v)===state.game.mathQ.ans)resolveMathWinner(mySlot);else resolveMathSkip()}
+ else {sendAction('answer-math',{value:Number(v),qid:state.game.mathQ.qid})}
+}
 (async()=>{let r=readPersisted();if(r.code&&r.slot){
   roomCode=r.code;mySlot=r.slot;myName=r.name||'Player';isHost=(r.slot==='p1');
   try{let saved=sessionStorage.getItem('rb_rope_state');if(saved){let parsed=JSON.parse(saved);if(parsed&&parsed.gameId==='rope'&&parsed.code===roomCode)state=parsed}}catch(e){}
   if(r.p1)$('playerName').value=r.p1;
   if(!state&&isHost)state=newState(r.p1||myName,sessionStorage.getItem('rb_gameMode')||'master',parseInt(sessionStorage.getItem('rb_winTarget')||'5'));
-  if(state&&r.p2&&!state.p2)state.p2=r.p2;
+  if(state&&r.p2&&!state.p2)state.p2=r.p2;if(state&&state.mode==='math'&&state.status==='playing'&&state.game.mathQ)startMathClock();if(isHost&&state&&state.mode==='math'&&state.status==='playing'&&state.game.mathQ)startMathClock();
   $('reconnectBanner')?.classList.remove('hidden');
   try{await makePeer(isHost?'ropebattle-'+roomCode:'ropebattle-'+roomCode+'-guest-'+Math.random().toString(36).slice(2,7))}catch(e){toast('Reconnection failed: '+(e.message||'PeerJS error'));return}
   if(isHost){setConnUI(false,'Waiting for opponent to reconnect…');if(state)renderAll();else{showScreen('lobby');renderLobby()}}
   else{setConnUI(false,'Reconnecting…');try{connectToHost('ropebattle-'+roomCode,c=>c.send({type:'action',action:'hello',payload:{name:myName},slot:'p2'}),()=>{toast('Could not reconnect — ask host to reopen the room.');setConnUI(false,'Reconnect failed')})}catch(e){toast('Reconnect error: '+e.message)}}
 }})();
-</script>
-</body>
-</html>
 
 </script>
 </body>

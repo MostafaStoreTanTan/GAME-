@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ROPE BATTLE — Letter Challenge | Game 2</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@700;800;900&family=Baloo+2:wght@700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Cairo,sans-serif;background:radial-gradient(800px 400px at 15% -10%,#1a3a6e,transparent 60%),#071226;color:#fff;min-height:100vh}
+.topbar{max-width:1120px;margin:0 auto;padding:14px 16px;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center}
+.logo b{font-family:"Baloo 2";font-size:22px}.logo b i{font-style:normal;color:#ffc93c}
+.pill{border:1px solid #223f6e;background:#0f244a;color:#fff;padding:9px 12px;border-radius:999px;cursor:pointer;font-weight:800;font-size:13px}
+.pill.gold{background:#ffc93c;color:#1a1000;border-color:#ffc93c}.pill:disabled{opacity:.5}
+.wrap{max-width:1120px;margin:0 auto;padding:6px 16px 30px}
+.screen{display:none}.screen.show{display:block;animation:f .3s ease}@keyframes f{from{opacity:0;transform:translateY(8px)}to{opacity:1}}
+.card{background:linear-gradient(180deg,#132c52,#0d1f3f);border:1px solid #254a7a;border-radius:22px;padding:20px}
+h1{font-family:"Baloo 2";font-size:clamp(42px,6vw,62px)}h1 span{color:#ffc93c}
+label{font-size:12px;color:#a9bddb;font-weight:800;display:block;margin:13px 0 6px}
+input,select{width:100%;background:#081a38;border:1px solid #2b4c7e;color:#fff;padding:14px;border-radius:14px;outline:none;font-size:16px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}@media(max-width:560px){.row{grid-template-columns:1fr}}
+.btn{border:0;cursor:pointer;border-radius:14px;padding:15px;font-weight:900;font-size:15px;display:flex;justify-content:center;gap:8px;width:100%}
+.btn-blue{background:linear-gradient(180deg,#2ea6ff,#0077ff);color:#fff}.btn-gold{background:linear-gradient(180deg,#ffd34d,#ff8a00);color:#231300}
+.btn-ghost{background:#ffffff12;color:#fff;border:1px solid #ffffff22}.btn-green{background:linear-gradient(180deg,#2ee06a,#059669);color:#fff}
+.btn-red{background:linear-gradient(180deg,#ff5a6a,#e11d48);color:#fff}.btn:disabled{opacity:.5}
+.muted{color:#9fb3d6;font-size:13px;line-height:1.7}
+.alert{background:#fff7d6;color:#5a3b00;border:1px solid #ffd34d;padding:11px;border-radius:12px;font-size:13px;line-height:1.6;margin-top:12px}
+.alert.danger{background:#ffe4e6;color:#7f1d1d;border-color:#fda4af}.alert.ok{background:#dcfce7;color:#14532d;border-color:#86efac}
+.scoreboard{display:flex;gap:10px;flex-wrap:wrap}.score{flex:1;min-width:170px;border-radius:18px;padding:14px;display:flex;gap:12px;align-items:center;border:1px solid #ffffff22}
+.score.blue{background:#1a6cff}.score.red{background:#ff4d6d}.score .pts{margin-inline-start:auto;font-family:"Baloo 2";font-size:30px}
+.center-card{text-align:center;min-width:190px}.timer{font-family:"Baloo 2";font-size:32px;color:#ffc93c}
+.letter-big{font-size:84px;font-weight:900;color:#ffc93c;text-align:center;line-height:1}
+.letters{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin-top:12px}@media(max-width:600px){.letters{grid-template-columns:repeat(5,1fr)}}
+.letter-btn{padding:14px 4px;border-radius:14px;border:1px solid #2b4c7e;background:#081a38;color:#fff;font-size:24px;font-weight:900;cursor:pointer}
+.letter-btn.used{opacity:.3;text-decoration:line-through}
+.table-wrap{overflow:auto;border-radius:16px;border:1px solid #254a7a;margin-top:14px;background:#081a38}
+table{width:100%;border-collapse:collapse;min-width:640px}th,td{padding:12px;border-bottom:1px solid #223f6e;text-align:center}th{background:#0f244a}
+td input{background:#fff;color:#111;border:2px solid #e5e7eb;font-weight:800;text-align:center;font-size:17px;width:100%;padding:12px;border-radius:12px}
+td input:disabled{background:#e2e8f0}td input.ok{border-color:#22c55e}td input.bad{border-color:#ff3b5c}
+.judge-row{display:flex;gap:6px;justify-content:center}.jb{padding:7px 10px;border-radius:999px;border:1px solid #ffffff33;background:#ffffff12;color:#fff;cursor:pointer;font-weight:800;font-size:12px}
+.jb.on1{background:#22c55e}.jb.on0{background:#ff3b5c}
+.navbar{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}.navbar .btn{flex:1}
+.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:#fff;color:#111;padding:12px 16px;border-radius:999px;font-weight:800;z-index:99;display:none;max-width:92vw;text-align:center}
+.dot{width:10px;height:10px;border-radius:50%;display:inline-block;background:#f59e0b}.dot.on{background:#22c55e}.dot.off{background:#ef4444}.hidden{display:none!important}
+</style>
+</head>
+<body>
+<header class="topbar">
+<div class="logo">🪢 <b>ROPE <i>BATTLE</i></b> • تحدي الحروف <span style="font-size:11px;background:#ff8a0022;border:1px solid #ff8a0055;color:#ffd59a;padding:5px 9px;border-radius:999px">PEERJS • GAME 2</span></div>
+<div style="display:flex;gap:8px;flex-wrap:wrap">
+<span class="pill"><span class="dot" id="connDot"></span> <span id="connLabel">Not connected</span></span>
+<button class="pill" id="soundBtn">🔊 الصوت</button>
+<button class="pill" onclick="goPrevGame()">⬅ BACK TO ROPE BATTLE</button>
+<button class="pill gold" onclick="goNextGame()">▶️ NEXT GAME</button>
+</div>
+</header>
+<main class="wrap">
+<section id="screen-menu" class="screen show">
+<div class="card">
+<span style="background:#ffc93c;color:#231300;padding:5px 10px;border-radius:999px;font-size:12px;font-weight:900">GAME 2 • اللعبة الثانية</span>
+<h1 style="margin-top:10px">تحدي <span>الحروف</span> 🔤</h1>
+<p class="muted">سيد الحرف يختار حرفاً. اللاعبان يملآن 8 فئات بكلمات تبدأ بنفس الحرف. كل إجابة صحيحة = <b style="color:#fff">10 نقاط</b>. أول من يصل <b style="color:#fff">500</b> يفوز! إذا أعطى اللاعبان نفس الإجابة الصحيحة، يحصل كل منهما على 10 نقاط.</p>
+<div class="alert" id="roomInfo">إذا جئت من ROPE BATTLE، سيتم إعادة الاتصال بنفس الغرفة تلقائياً. وإلا أدخل اسمك ورمز الغرفة أدناه.</div>
+<div class="row"><div><label>اسم اللاعب 1 (المضيف)</label><input id="p1Name" placeholder="آدم"></div><div><label>اسم اللاعب 2</label><input id="p2Name" placeholder="سلمى"></div></div>
+<label>رمز الغرفة (5 أرقام) — اتركه فارغاً إذا كنت المضيف وستُنشأ غرفة</label>
+<input id="roomCodeInput" placeholder="12345" maxlength="5" inputmode="numeric">
+<div id="joinError" class="alert danger hidden"></div>
+<div class="row" style="margin-top:14px"><button class="btn btn-blue" onclick="createOrJoin()">🚀 إنشاء / انضمام</button><button class="btn btn-gold" onclick="goNextGame()">▶️ NEXT GAME</button></div>
+<div class="navbar"><button class="btn btn-ghost" onclick="goPrevGame()">⬅ BACK TO ROPE BATTLE</button></div>
+</div>
+</section>
+
+<section id="screen-game" class="screen">
+<div class="scoreboard">
+<div class="score blue"><span style="font-size:30px">🧑‍🦰</span><div><h3 id="gP1Name">لاعب 1</h3><p>الجولة: <b id="p1Round">0</b> • <span id="p1Role">—</span></p></div><div class="pts" id="gP1Pts">0</div></div>
+<div class="score center-card"><div>الجولة <b id="roundNum">1</b> • <span id="phaseLabel">اختيار الحرف</span></div><div class="timer" id="timer">⏱ 90</div><div class="muted" id="syncLabel">—</div></div>
+<div class="score red"><span style="font-size:30px">🧑‍🦱</span><div><h3 id="gP2Name">لاعب 2</h3><p>الجولة: <b id="p2Round">0</b> • <span id="p2Role">—</span></p></div><div class="pts" id="gP2Pts">0</div></div>
+</div>
+<div class="card" style="margin-top:14px" id="phaseBox"></div>
+<div class="navbar"><button class="btn btn-ghost" onclick="goPrevGame()">⬅ BACK TO ROPE BATTLE</button><button class="btn btn-gold" onclick="goNextGame()">▶️ NEXT GAME</button><button class="btn btn-ghost" onclick="leaveRoom()">🏳️ خروج</button></div>
+</section>
+
+<section id="screen-win" class="screen">
+<div class="card" style="max-width:620px;margin:0 auto;text-align:center"><div style="font-size:84px">🏆</div><h1 style="font-size:40px" id="winnerName">الفائز!</h1><p class="muted" id="winnerText"></p><div style="font-size:52px;margin:10px">🎉 🔤 🎉</div>
+<div class="row"><button class="btn btn-gold" onclick="requestRematch()">🔁 REMATCH</button><button class="btn btn-blue" onclick="goPrevGame()">⬅ BACK TO ROPE BATTLE</button></div>
+<div class="navbar"><button class="btn btn-gold" onclick="goNextGame()">▶️ NEXT GAME</button></div></div>
+</section>
+</main>
+<div class="toast" id="toast"></div>
+<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<script>
+/* ================= SHARED PROTOCOL — identical to index.html =================
+PeerJS Cloud 0.peerjs.com:443 secure. Host ID = ropebattle-<code>.
+Messages: hello / state / action / navigate / error.
+Navigation: GAMES = [index,game1,game2,game3,game4]. NEXT = next index, BACK = previous.
+Room persistence: sessionStorage + URL ?room=&slot=&name=&p1=&p2=
+Host is authoritative for Letter Challenge: only host applies pick/type/submit/judge/confirm.
+Scores are DERIVED on host from judge[] + non-empty answers: 10 per valid. Duplicate valid answers = 10 each.
+============================================================================= */
+const $=id=>document.getElementById(id);
+const CATS=[{ar:'بنت',icon:'👧',ex:'زينب'},{ar:'ولد',icon:'👦',ex:'زياد'},{ar:'مدينة',icon:'🏙️',ex:'زاكورة'},{ar:'دولة',icon:'🌍',ex:'زامبيا'},{ar:'خضر',icon:'🥕',ex:'زرودية'},{ar:'فواكه',icon:'🍇',ex:'زيتون'},{ar:'جماد',icon:'🧱',ex:'زجاج'},{ar:'سائل',icon:'💧',ex:'زيت'}];
+const LETTERS=['ا','ب','ت','ث','ج','ح','خ','د','ذ','ر','ز','س','ش','ص','ض','ط','ظ','ع','غ','ف','ق','ك','ل','م','ن','و','ه','ء','ي'];
+const WIN=500,PTS=10,GAMES=['index.html','game1.html','game2.html','game3.html','game4.html'],PEER_CFG={host:'0.peerjs.com',port:443,path:'/',secure:true,debug:1};
+function currentFile(){let p=location.pathname.split('/').pop()||'game1.html';return p.split('?')[0]||'game1.html'}
+function gameIndex(){let i=GAMES.indexOf(currentFile());return i<0?1:i}
+function nextGameFile(){return GAMES[Math.min(gameIndex()+1,GAMES.length-1)]}
+function prevGameFile(){return GAMES[Math.max(gameIndex()-1,0)]}
+function hasPrev(){return gameIndex()>0}
+function buildNavUrl(file){let q=new URLSearchParams({room:roomCode||'',slot:mySlot||'',name:myName||'',p1:(state&&state.p1)||sessionStorage.getItem('rb_p1')||'',p2:(state&&state.p2)||sessionStorage.getItem('rb_p2')||''});return file+'?'+q.toString()}
+function saveSession(){sessionStorage.setItem('rb_code',roomCode||'');sessionStorage.setItem('rb_name',myName||'');sessionStorage.setItem('rb_slot',mySlot||'');sessionStorage.setItem('rb_p1',(state&&state.p1)||sessionStorage.getItem('rb_p1')||'');sessionStorage.setItem('rb_p2',(state&&state.p2)||sessionStorage.getItem('rb_p2')||'')}
+function readPersisted(){let u=new URLSearchParams(location.search);return{code:u.get('room')||sessionStorage.getItem('rb_code')||'',slot:u.get('slot')||sessionStorage.getItem('rb_slot')||'',name:u.get('name')||sessionStorage.getItem('rb_name')||'',p1:u.get('p1')||sessionStorage.getItem('rb_p1')||'',p2:u.get('p2')||sessionStorage.getItem('rb_p2')||''}}
+function goNextGame(){if(!roomCode){toast('أنشئ غرفة أو انضم إليها أولاً.');return}saveSession();let t=nextGameFile();if(t===currentFile()){toast('هذه آخر لعبة متاحة حالياً — ستُضاف game2.html قريباً.');return}if(isHost){if(conn&&conn.open)conn.send({type:'navigate',game:t});setTimeout(()=>{location.href=buildNavUrl(t)},350)}else{sendAction('request-navigate',{game:t});toast('نطلب من المضيف نقل اللاعبين معاً…')}}
+function goPrevGame(){if(!hasPrev())return;if(!roomCode){location.href=prevGameFile();return}saveSession();let t=prevGameFile();if(isHost){if(conn&&conn.open)conn.send({type:'navigate',game:t});setTimeout(()=>{location.href=buildNavUrl(t)},350)}else{sendAction('request-navigate',{game:t});toast('نطلب من المضيف نقل اللاعبين معاً…')}}
+let soundOn=true,peer=null,conn=null,mySlot=null,myName='',roomCode='',isHost=false,connected=false,state=null,timerInt=null;
+function toast(m){let el=$('toast');el.textContent=m;el.style.display='block';setTimeout(()=>el.style.display='none',3200)}
+function showScreen(n){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('show'));$('screen-'+n).classList.add('show')}
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+let ac=null;function play(f=520,d=.12){if(!soundOn)return;try{ac=ac||new (window.AudioContext||window.webkitAudioContext)();let o=ac.createOscillator(),g=ac.createGain();o.type='sine';o.frequency.value=f;g.gain.setValueAtTime(.15,ac.currentTime);g.gain.exponentialRampToValueAtTime(.001,ac.currentTime+d);o.connect(g);g.connect(ac.destination);o.start();o.stop(ac.currentTime+d)}catch(e){}}
+$('soundBtn').onclick=()=>{soundOn=!soundOn;$('soundBtn').textContent=soundOn?'🔊 الصوت':'🔇 الصوت'};
+function setConnUI(on,txt){connected=on;$('connDot').className='dot '+(on?'on':'off');$('connLabel').textContent=txt||(on?'Connected (WebRTC)':'Not connected')}
+function norm(s){return String(s||'').replace(/[\u064B-\u0652\u0670]/g,'').replace(/[أإآ]/g,'ا').replace(/ة/g,'ه').replace(/ى/g,'ي').trim()}
+function startsWithLetter(a,l){if(!a||!a.trim())return false;return norm(a).charAt(0)===norm(l)}
+function makePeer(id){return new Promise((res,rej)=>{if(peer)try{peer.destroy()}catch(e){}peer=new Peer(id,PEER_CFG);peer.on('open',()=>res());peer.on('error',e=>rej(e));peer.on('connection',c=>{if(!isHost)return;if(conn&&conn.open){c.send({type:'error',message:'Room is full.'});setTimeout(()=>c.close(),300);return}attachConn(c)});peer.on('disconnected',()=>{setConnUI(false,'Reconnecting…');try{peer.reconnect()}catch(e){}})})}
+function attachConn(c){conn=c;c.on('open',()=>{setConnUI(true,'Connected (WebRTC)');if(isHost)sendState()});c.on('data',m=>{if(isHost)handleAction(m,c);else handleHost(m)});c.on('close',()=>{setConnUI(false,'Peer disconnected');toast('⚠️ الخصم انقطع — يمكنه إعادة التحميل بنفس الرمز')})}
+function sendState(){if(conn&&conn.open&&state)conn.send({type:'state',state})}
+function sendAction(a,p){if(!conn||!conn.open){toast('غير متصل بعد — انتظر Connected');return false}conn.send({type:'action',action:a,payload:p,slot:mySlot});return true}
+function newState(p1,p2){return{code:roomCode,gameId:'letter',status:'select',p1,p2,p1Ready:true,p2Ready:!!p2,game:{round:1,letter:'',letterMaster:0,usedLetters:[],answers:{p1:Array(8).fill(''),p2:Array(8).fill('')},submitted:{p1:false,p2:false},judge:{p1:Array(8).fill(true),p2:Array(8).fill(true)},roundScore:{p1:0,p2:0},total:{p1:0,p2:0},winner:null,timerLen:90,lastSummary:''}}}
+function broadcast(){saveSession();if(isHost)sendState();renderAll()}
+function handleAction(msg,c){
+if(!msg||msg.type!=='action')return;
+if(msg.action==='hello'){if(!state.p2)state.p2=msg.payload.name;state.p2Ready=true;broadcast();return}
+if(msg.action==='request-navigate'){let t=msg.payload&&msg.payload.game?msg.payload.game:nextGameFile();if(conn&&conn.open)conn.send({type:'navigate',game:t});setTimeout(()=>{location.href=buildNavUrl(t)},350);return}
+if(msg.slot!=='p1'&&msg.slot!=='p2')return;
+if(msg.action==='pick-letter'){if(msg.slot!==(state.game.letterMaster===0?'p1':'p2'))return;if(state.status!=='select')return;let L=msg.payload.letter;if(state.game.usedLetters.includes(L))return;state.game.letter=L;state.game.usedLetters.push(L);state.game.answers={p1:Array(8).fill(''),p2:Array(8).fill('')};state.game.submitted={p1:false,p2:false};state.game.judge={p1:Array(8).fill(true),p2:Array(8).fill(true)};state.status='fill';broadcast();return}
+if(msg.action==='type'){if(state.status!=='fill')return;state.game.answers[msg.slot][msg.payload.i]=String(msg.payload.v||'').slice(0,40);broadcast();return}
+if(msg.action==='submit'){if(state.status!=='fill')return;state.game.submitted[msg.slot]=true;if(state.game.submitted.p1&&state.game.submitted.p2){state.game.judge={p1:state.game.answers.p1.map(a=>startsWithLetter(a,state.game.letter)),p2:state.game.answers.p2.map(a=>startsWithLetter(a,state.game.letter))};state.status='judge'}broadcast();return}
+if(msg.action==='toggle-judge'){if(msg.slot!==(state.game.letterMaster===0?'p1':'p2'))return;if(state.status!=='judge')return;state.game.judge[msg.payload.slot][msg.payload.i]=!!msg.payload.val;broadcast();return}
+if(msg.action==='confirm'){if(msg.slot!==(state.game.letterMaster===0?'p1':'p2'))return;if(state.status!=='judge')return;confirmOnHost();return}
+if(msg.action==='next'){if(msg.slot!==(state.game.letterMaster===0?'p1':'p2'))return;if(state.status!=='results')return;state.game.round++;state.game.letter='';state.game.answers={p1:Array(8).fill(''),p2:Array(8).fill('')};state.game.submitted={p1:false,p2:false};state.game.judge={p1:Array(8).fill(true),p2:Array(8).fill(true)};state.game.roundScore={p1:0,p2:0};state.status='select';broadcast();return}
+if(msg.action==='rematch'){if(state.status!=='finished')return;state.status='select';state.game={round:1,letter:'',letterMaster:0,usedLetters:[],answers:{p1:Array(8).fill(''),p2:Array(8).fill('')},submitted:{p1:false,p2:false},judge:{p1:Array(8).fill(true),p2:Array(8).fill(true)},roundScore:{p1:0,p2:0},total:{p1:0,p2:0},winner:null,timerLen:90,lastSummary:''};broadcast();return}
+}
+function handleHost(msg){if(!msg)return;if(msg.type==='state'){state=msg.state;saveSession();renderAll()}if(msg.type==='navigate'){saveSession();let t=msg.game||nextGameFile();setTimeout(()=>{location.href=buildNavUrl(t)},200)}if(msg.type==='error')toast('❌ '+msg.message)}
+function confirmOnHost(){let g=state.game,r1=0,r2=0;for(let i=0;i<8;i++){if(g.judge.p1[i]&&g.answers.p1[i].trim())r1+=PTS;if(g.judge.p2[i]&&g.answers.p2[i].trim())r2+=PTS}g.roundScore={p1:r1,p2:r2};g.total={p1:g.total.p1+r1,p2:g.total.p2+r2};g.letterMaster=r1>r2?0:r2>r1?1:g.letterMaster;g.lastSummary=r1===r2?`تعادل! سيد الحرف يبقى ${g.letterMaster===0?state.p1:state.p2}.`:`فاز بالجولة ${r1>r2?state.p1:state.p2} (${Math.max(r1,r2)} مقابل ${Math.min(r1,r2)}).`;if(g.total.p1>=WIN||g.total.p2>=WIN){g.winner=g.total.p1>g.total.p2?0:1;state.status='finished'}else state.status='results';broadcast()}
+async function createOrJoin(){let p1=$('p1Name').value.trim()||'لاعب 1',p2=$('p2Name').value.trim()||'لاعب 2',code=$('roomCodeInput').value.trim();let err=$('joinError');err.classList.add('hidden');if(/^\d{5}$/.test(code)){myName=p2;roomCode=code;mySlot='p2';isHost=false;saveSession();try{await makePeer('ropebattle-'+code+'-guest-'+Math.random().toString(36).slice(2,7))}catch(e){toast('❌ فشل الإشارة — تحقق من الإنترنت');return}setConnUI(false,'Connecting…');let c=peer.connect('ropebattle-'+code,{reliable:true});attachConn(c);c.on('open',()=>c.send({type:'action',action:'hello',payload:{name:myName},slot:'p2'}));setTimeout(()=>{if(!connected){err.textContent='❌ الغرفة غير موجودة — تحقق من الرمز وأن المضيف ما زال في الصفحة';err.classList.remove('hidden')}},4000);return}myName=p1;roomCode=String(Math.floor(10000+Math.random()*90000));mySlot='p1';isHost=true;state=newState(p1,p2);saveSession();try{await makePeer('ropebattle-'+roomCode)}catch(e){toast('❌ فشل بدء الإشارة');return}setConnUI(false,'Waiting for Player 2…');$('roomInfo').textContent='🌐 غرفة: '+roomCode+' — شارك الرمز مع اللاعب 2.';showScreen('game');renderAll();toast('غرفة '+roomCode+' أُنشئت')}
+function requestRematch(){if(isHost){state.status='select';state.game={round:1,letter:'',letterMaster:0,usedLetters:[],answers:{p1:Array(8).fill(''),p2:Array(8).fill('')},submitted:{p1:false,p2:false},judge:{p1:Array(8).fill(true),p2:Array(8).fill(true)},roundScore:{p1:0,p2:0},total:{p1:0,p2:0},winner:null,timerLen:90,lastSummary:''};broadcast()}else sendAction('rematch',{})}
+function leaveRoom(){try{conn&&conn.close()}catch(e){}try{peer&&peer.destroy()}catch(e){}state=null;sessionStorage.removeItem('rb_code');showScreen('menu')}
+function renderAll(){if(!state)return;renderGame();if(state.status==='finished')showWin()}
+function stopTimer(){clearInterval(timerInt)}
+function renderGame(){if(!state||!state.game)return;let g=state.game;$('gP1Name').textContent=state.p1;$('gP2Name').textContent=state.p2||'لاعب 2';$('roundNum').textContent=g.round;$('gP1Pts').textContent=g.total.p1;$('gP2Pts').textContent=g.total.p2;$('p1Round').textContent=g.roundScore.p1;$('p2Round').textContent=g.roundScore.p2;$('p1Role').textContent=g.letterMaster===0?'👑 سيد الحرف':'✏️ يجيب';$('p2Role').textContent=g.letterMaster===1?'👑 سيد الحرف':'✏️ يجيب';$('syncLabel').textContent=(connected?'🌐 CONNECTED • ':'● ')+roomCode;if(!$('screen-game').classList.contains('show'))showScreen('game');renderPhase()}
+function isMasterMe(){return mySlot===(state.game.letterMaster===0?'p1':'p2')}
+function renderPhase(){let box=$('phaseBox'),g=state.game,masterName=g.letterMaster===0?state.p1:state.p2;$('phaseLabel').textContent={select:'اختيار الحرف',fill:'ملء الجدول',judge:'التحكيم',results:'نتائج الجولة'}[state.status]||state.status;if(state.status==='select'){stopTimer();box.innerHTML=`<h2 style="text-align:center">👑 سيد الحرف: ${esc(masterName)}</h2><p class="muted" style="text-align:center">الجولة ${g.round} — ${isMasterMe()?'دورك لاختيار الحرف':'بانتظار سيد الحرف'}</p>${isMasterMe()?'':`<div class="alert danger">⏳ بانتظار <b>${esc(masterName)}</b> — لا يمكنك اختيار الحرف.</div>`}${isMasterMe()?`<div class="letters">${LETTERS.map(L=>`<button class="letter-btn ${g.usedLetters.includes(L)?'used':''}" ${g.usedLetters.includes(L)?'disabled':''} onclick="pickLetter('${L}')">${L}</button>`).join('')}</div>`:''}`;return}if(state.status==='fill'){box.innerHTML=`<div style="text-align:center"><div class="letter-big">${esc(g.letter)}</div><p class="muted">كل الإجابات يجب أن تبدأ بـ <b style="color:#fff">${esc(g.letter)}</b></p></div><div class="table-wrap"><table><thead><tr><th>الفئة</th><th>🔵 ${esc(state.p1)}</th><th>🔴 ${esc(state.p2||'لاعب 2')}</th></tr></thead><tbody>${CATS.map((c,i)=>`<tr><td style="font-weight:900">${c.icon} ${c.ar}<div style="font-size:11px;color:#9fb3d6">مثال: ${c.ex}</div></td><td><input value="${esc(g.answers.p1[i]||'')}" placeholder="${c.ar}…" oninput="onType('p1',${i},this.value)" ${mySlot!=='p1'?'disabled':''} class="${g.answers.p1[i]?(startsWithLetter(g.answers.p1[i],g.letter)?'ok':'bad'):''}"></td><td><input value="${esc(g.answers.p2[i]||'')}" placeholder="${c.ar}…" oninput="onType('p2',${i},this.value)" ${mySlot!=='p2'?'disabled':''} class="${g.answers.p2[i]?(startsWithLetter(g.answers.p2[i],g.letter)?'ok':'bad'):''}"></td></tr>`).join('')}</tbody></table></div><div class="row" style="margin-top:14px"><button class="btn btn-blue" onclick="submitMe()" ${g.submitted.p1?'disabled':''}>✅ إرسال ${esc(state.p1)} ${g.submitted.p1?'✓':''}</button><button class="btn btn-red" onclick="submitMe()" ${g.submitted.p2?'disabled':''}>✅ إرسال ${esc(state.p2||'لاعب 2')} ${g.submitted.p2?'✓':''}</button></div><div class="alert">${esc(state.p1)} ${g.submitted.p1?'✅ أرسل':'⏳ لم يرسل'} — ${esc(state.p2||'لاعب 2')} ${g.submitted.p2?'✅ أرسل':'⏳ لم يرسل'}</div>`;return}if(state.status==='judge'){stopTimer();box.innerHTML=`<h2 style="text-align:center">⚖️ التحكيم — سيد الحرف: ${esc(masterName)}</h2><p class="muted" style="text-align:center">${isMasterMe()?'راجع الإجابات. ألغِ تحديد الخاطئة ثم أكّد.':'بانتظار سيد الحرف للتحكيم.'}</p><div class="table-wrap"><table><thead><tr><th>الفئة</th><th>🔵 ${esc(state.p1)}</th><th>تحكيم</th><th>🔴 ${esc(state.p2||'لاعب 2')}</th><th>تحكيم</th></tr></thead><tbody>${CATS.map((c,i)=>`<tr><td style="font-weight:900">${c.icon} ${c.ar}</td><td style="font-weight:800">${esc(g.answers.p1[i]||'—')}</td><td>${judgeCell('p1',i)}</td><td style="font-weight:800">${esc(g.answers.p2[i]||'—')}</td><td>${judgeCell('p2',i)}</td></tr>`).join('')}</tbody></table></div>${isMasterMe()?`<button class="btn btn-green" style="margin-top:14px" onclick="confirmJ()">✅ تأكيد النتائج</button>`:''}`;return}if(state.status==='results'){stopTimer();box.innerHTML=`<h2 style="text-align:center">📊 نتائج الجولة ${g.round}</h2><p class="muted" style="text-align:center">الحرف: <b style="color:#ffc93c;font-size:22px">${esc(g.letter)}</b> — ${esc(g.lastSummary||'')}</p><div class="row" style="margin-top:12px"><div class="card" style="text-align:center"><b>🔵 ${esc(state.p1)}</b><div style="font-size:32px;font-weight:900">+${g.roundScore.p1}</div><p class="muted">المجموع ${g.total.p1}</p></div><div class="card" style="text-align:center"><b>🔴 ${esc(state.p2||'لاعب 2')}</b><div style="font-size:32px;font-weight:900">+${g.roundScore.p2}</div><p class="muted">المجموع ${g.total.p2}</p></div></div><button class="btn btn-gold" style="margin-top:12px" onclick="nextRound()">➡️ الجولة التالية</button>`;return}}
+function judgeCell(slot,i){if(!isMasterMe())return state.game.judge[slot][i]?'✅ صحيحة':'❌ خاطئة';let v=state.game.judge[slot][i];return `<div class="judge-row"><button class="jb ${v?'on1':''}" onclick="toggleJ('${slot}',${i},true)">✅</button><button class="jb ${!v?'on0':''}" onclick="toggleJ('${slot}',${i},false)">❌</button></div>`}
+function pickLetter(L){if(!isMasterMe()){toast('⛔ فقط سيد الحرف يختار');return}if(isHost){state.game.letter=L;state.game.usedLetters.push(L);state.game.answers={p1:Array(8).fill(''),p2:Array(8).fill('')};state.game.submitted={p1:false,p2:false};state.game.judge={p1:Array(8).fill(true),p2:Array(8).fill(true)};state.status='fill';broadcast()}else sendAction('pick-letter',{letter:L})}
+function onType(slot,i,v){if(mySlot!==slot)return;if(isHost){state.game.answers[slot][i]=String(v).slice(0,40);broadcast()}else sendAction('type',{i,v})}
+function submitMe(){if(isHost){state.game.submitted[mySlot]=true;if(state.game.submitted.p1&&state.game.submitted.p2){state.game.judge={p1:state.game.answers.p1.map(a=>startsWithLetter(a,state.game.letter)),p2:state.game.answers.p2.map(a=>startsWithLetter(a,state.game.letter))};state.status='judge'}broadcast()}else sendAction('submit',{})}
+function toggleJ(slot,i,val){if(!isMasterMe())return;if(isHost){state.game.judge[slot][i]=val;broadcast()}else sendAction('toggle-judge',{slot,i,val})}
+function confirmJ(){if(!isMasterMe())return;if(isHost)confirmOnHost();else sendAction('confirm',{})}
+function nextRound(){if(!isMasterMe()){toast('بانتظار سيد الحرف الجديد');return}if(isHost){state.game.round++;state.game.letter='';state.game.answers={p1:Array(8).fill(''),p2:Array(8).fill('')};state.game.submitted={p1:false,p2:false};state.game.judge={p1:Array(8).fill(true),p2:Array(8).fill(true)};state.game.roundScore={p1:0,p2:0};state.status='select';broadcast()}else sendAction('next',{})}
+function showWin(){if(!state)return;let g=state.game,w=g.winner??(g.total.p1>=g.total.p2?0:1),n=w===0?state.p1:state.p2;$('winnerName').textContent='🏆 '+n+' يفوز!';$('winnerText').textContent=`النتيجة: ${state.p1} ${g.total.p1} — ${g.total.p2} ${state.p2} • ${g.round} جولات`;showScreen('win');play(800)}
+(async()=>{let r=readPersisted();if(r.code&&r.slot){roomCode=r.code;mySlot=r.slot;myName=r.name||'Player';isHost=(r.slot==='p1');$('roomInfo').textContent='🔄 إعادة الاتصال بنفس الغرفة: '+r.code+' كـ '+(r.slot==='p1'?'لاعب 1 (مضيف)':'لاعب 2')+' — لا تنشئ غرفة جديدة.';try{await makePeer(isHost?'ropebattle-'+r.code:'ropebattle-'+r.code+'-guest-'+Math.random().toString(36).slice(2,7))}catch(e){}if(isHost){if(!state){state=newState(r.p1||myName,r.p2||'لاعب 2');state.p2=r.p2||null}setConnUI(false,'Waiting for opponent to reconnect…');showScreen('game');renderAll()}else{try{let cc=peer.connect('ropebattle-'+r.code,{reliable:true});attachConn(cc);cc.on('open',()=>cc.send({type:'action',action:'hello',payload:{name:myName},slot:'p2'}))}catch(e){}setTimeout(()=>{if(!connected)toast('تعذر إعادة الاتصال — اطلب من المضيف البقاء في الصفحة')},5000)}}})();
+</script>
+</body>
+</html>

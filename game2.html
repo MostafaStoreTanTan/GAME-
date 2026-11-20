@@ -91,7 +91,12 @@ input,textarea{width:100%;padding:14px;background:#101a31;color:#fff;border:1px 
       <div class="row"><button class="green" onclick="judgeAnswer(true)">صحيحة ✓</button><button class="red" onclick="judgeAnswer(false)">خاطئة ✕</button></div>
     </div>
     <div id="questionResult" class="alert hidden"></div>
-    <div class="row"><button class="secondary" onclick="goPrevGame()">⬅ اللعبة السابقة</button><button class="secondary" onclick="goNextGame()">اللعبة التالية ➡</button></div>
+    <div class="row" style="margin-top:12px">
+      <button class="primary" id="replayRoundBtn" onclick="hostNextRound()" disabled>🔁 إعادة الجولة</button>
+      <button class="secondary" id="nextGameBtn" onclick="hostGoNext()" disabled>اللعبة التالية ➡</button>
+    </div>
+    <div class="alert" id="hostControlHint">المضيف هو المسؤول عن إعادة الجولة أو الانتقال إلى اللعبة التالية.</div>
+    <div class="row"><button class="secondary" onclick="goPrevGame()">⬅ اللعبة السابقة</button></div>
   </section>
   <div class="footer">ROPE BATTLE · SHARED TABLE · TWO PLAYERS</div>
 </main>
@@ -120,6 +125,7 @@ function render(){
  $('startButton').disabled=!(isHost&&state.p2&&state.status==='lobby');
  $('p1Name').textContent=state.p1;$('p2Name').textContent=state.p2||'اللاعب الثاني';
  $('p1Score').textContent=state.scores.p1;$('p2Score').textContent=state.scores.p2;
+ $('gameHint').textContent='الجولة '+(state.round||1)+' · انتصارات الجولات: '+state.p1+' '+(state.roundWins?.p1||0)+' — '+(state.roundWins?.p2||0)+' '+(state.p2||'اللاعب الثاني');
  $('p1Turn').textContent=state.turn==='p1'?'دورك الآن':' ';$('p2Turn').textContent=state.turn==='p2'?'دورك الآن':' ';
  $('turnLabel').textContent='الدور: '+(state.turn==='p1'?state.p1:state.p2||'اللاعب الثاني');
  $('pairCount').textContent=state.matched.length+' / 8';$('progressFill').style.width=(state.matched.length/8*100)+'%';
@@ -144,9 +150,13 @@ function renderQuestion(){
  if(state.questionPhase==='answer')$('receivedQuestion').textContent=state.question;
  if(state.questionPhase==='judge')$('receivedAnswer').textContent=state.answer;
  if(state.questionPhase==='done')$('questionResult').textContent=state.judgment==='correct'?'✅ الفائز اعتبر الإجابة صحيحة.':'❌ الفائز اعتبر الإجابة خاطئة.';
+ const replay=$('replayRoundBtn'),next=$('nextGameBtn');
+ if(replay){replay.disabled=!(isHost&&state.questionPhase==='done');replay.textContent='🔁 إعادة الجولة '+((state.round||1)+1)}
+ if(next){next.disabled=!isHost;next.textContent='اللعبة التالية ➡'}
+ $('hostControlHint').textContent=isHost?'أنت المضيف: اختر إعادة الجولة أو الانتقال للعبة التالية.':'بانتظار المضيف ليقرر: إعادة الجولة أو الانتقال للعبة التالية.';
 }
 function makeDeck(){let a=SHAPES.flatMap((shape,i)=>[{id:i*2,shape,faceUp:false,matched:false},{id:i*2+1,shape,faceUp:false,matched:false}]);for(let i=a.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
-function newState(p1){return{status:'lobby',p1,p2:null,scores:{p1:0,p2:0},turn:'p1',cards:makeDeck(),flipped:[],matched:[],lastMatchSlot:null,winner:null,message:'بانتظار اللاعب الثاني…',questionPhase:'ask',question:'',answer:'',judgment:null}}
+function newState(p1){return{status:'lobby',p1,p2:null,scores:{p1:0,p2:0},roundWins:{p1:0,p2:0},round:1,turn:'p1',cards:makeDeck(),flipped:[],matched:[],lastMatchSlot:null,winner:null,message:'بانتظار اللاعب الثاني…',questionPhase:'ask',question:'',answer:'',judgment:null}}
 async function createPeer(id){return new Promise((resolve,reject)=>{peer=new Peer(id,PEER_CFG);let done=false;peer.on('open',()=>{if(!done){done=true;resolve()}});peer.on('error',e=>{if(!done){done=true;reject(e)}});peer.on('connection',c=>{if(!isHost)return;if(conn?.open){c.send({type:'error',message:'الغرفة ممتلئة'});c.close();return}attach(c)});peer.on('disconnected',()=>{setStatus('إعادة الاتصال…');try{peer.reconnect()}catch(e){}})})}
 function attach(c){conn=c;c.on('open',()=>{connected=true;setStatus('Connected (WebRTC)',true);if(isHost){c.send({type:'shape-state',state});render() }else c.send({type:'hello',name:myName,slot:mySlot})});c.on('data',msg=>{if(isHost)hostMessage(msg,c);else guestMessage(msg)});c.on('close',()=>{connected=false;setStatus('انقطع الاتصال')})}
 function hostMessage(msg,c){
@@ -163,7 +173,7 @@ function hostFlip(slot,index){
  if(state.status!=='playing'||slot!==state.turn||!Number.isInteger(index)||index<0||index>=state.cards.length)return;
  if(state.flipped.length>=2||state.cards[index].matched||state.cards[index].faceUp)return;
  state.cards[index].faceUp=true;state.flipped.push(index);state.message=(state.flipped.length===1?'اختر البطاقة الثانية.':'جاري فحص الشكلين…');broadcast();
- if(state.flipped.length===2){let [a,b]=state.flipped;if(state.cards[a].shape===state.cards[b].shape){state.cards[a].matched=state.cards[b].matched=true;state.matched.push(a,b);state.scores[slot]++;state.lastMatchSlot=slot;state.flipped=[];state.message='🎉 تطابق صحيح! بقي الشكلان ظاهرين، والعب مرة أخرى.';if(state.matched.length===16){state.winner=state.scores.p1===state.scores.p2?(state.lastMatchSlot||'p1'):(state.scores.p1>state.scores.p2?'p1':'p2');state.status='question';state.questionPhase='ask';state.message='انتهت اللعبة! الفائز يكتب سؤالاً للمنافس.'}broadcast()}
+ if(state.flipped.length===2){let [a,b]=state.flipped;if(state.cards[a].shape===state.cards[b].shape){state.cards[a].matched=state.cards[b].matched=true;state.matched.push(a,b);state.scores[slot]++;state.lastMatchSlot=slot;state.flipped=[];state.message='🎉 تطابق صحيح! بقي الشكلان ظاهرين، والعب مرة أخرى.';if(state.matched.length===16){state.winner=state.scores.p1===state.scores.p2?(state.lastMatchSlot||'p1'):(state.scores.p1>state.scores.p2?'p1':'p2');state.status='question';state.questionPhase='ask';state.roundWins=state.roundWins||{p1:0,p2:0};state.roundWins[state.winner]=(state.roundWins[state.winner]||0)+1;state.message='انتهت الجولة '+(state.round||1)+'! الفائز يكتب سؤالاً للمنافس.'}broadcast()}
  else{state.message='لم يتطابق الشكلان. سينتقل الدور بعد لحظة.';broadcast();clearTimeout(flipTimer);flipTimer=setTimeout(()=>{if(!state||state.status!=='playing')return;state.cards[a].faceUp=false;state.cards[b].faceUp=false;state.flipped=[];state.turn=slot==='p1'?'p2':'p1';state.message='الدور الآن: '+(state.turn==='p1'?state.p1:state.p2);broadcast()},1000)}}
 }
 function flipCard(index){if(mySlot!==state.turn||state.flipped.length>=2)return;if(isHost)hostFlip(mySlot,index);else sendAction('flip',{index})}
@@ -179,6 +189,21 @@ async function createOrJoin(){
  if(isHost){state=newState(myName);saveSession();try{await createPeer('ropebattle-'+roomCode+'-g2')}catch(e){toast('تعذر إنشاء الغرفة: '+(e.message||e));return}setStatus('بانتظار اللاعب الثاني');render();toast('تم إنشاء الغرفة '+roomCode+' — شارك الكود مع صديقك')}
  else{try{await createPeer('ropebattle-'+roomCode+'-guest-g2-'+Math.random().toString(36).slice(2,7))}catch(e){toast('تعذر الاتصال بخدمة PeerJS');return}setStatus('جارٍ الاتصال…');let c=peer.connect('ropebattle-'+roomCode+'-g2',{reliable:true});attach(c);}
 }
+
+function hostNextRound(){
+ if(!isHost||!state||state.status!=='question'||state.questionPhase!=='done')return;
+ state.round=(state.round||1)+1;state.cards=makeDeck();state.flipped=[];state.matched=[];state.lastMatchSlot=null;state.winner=null;
+ state.turn='p1';state.status='playing';state.questionPhase='ask';state.question='';state.answer='';state.judgment=null;
+ state.message='بدأت الجولة '+state.round+'! اقلب بطاقتين وابحث عن زوج.';
+ broadcast();
+}
+function hostGoNext(){
+ if(!isHost||!roomCode)return;
+ const target=nextGameFile();
+ if(conn?.open)conn.send({type:'navigate',game:target});
+ setTimeout(()=>location.href=navUrl(target),300);
+}
+
 function copyRoom(){if(navigator.clipboard)navigator.clipboard.writeText(roomCode).then(()=>{$('lobbyMessage').textContent='تم نسخ كود الغرفة.'});else $('lobbyMessage').textContent='كود الغرفة: '+roomCode}
 function coordinatedNavigate(target){
  if(!roomCode){location.href=target;return}

@@ -73,7 +73,7 @@ td input:disabled{background:#e2e8f0}td input.ok{border-color:#22c55e}td input.b
 <section id="screen-game" class="screen">
 <div class="scoreboard">
 <div class="score blue"><span style="font-size:30px">🧑‍🦰</span><div><h3 id="gP1Name">لاعب 1</h3><p>الجولة: <b id="p1Round">0</b> • <span id="p1Role">—</span></p></div><div class="pts" id="gP1Pts">0</div></div>
-<div class="score center-card"><div>الجولة <b id="roundNum">1</b> • <span id="phaseLabel">اختيار الحرف</span></div><div class="timer" id="timer">⏱ 90</div><div class="muted" id="syncLabel">—</div></div>
+<div class="score center-card"><div>الجولة <b id="roundNum">1</b> • <span id="phaseLabel">اختيار الحرف</span></div><div class="timer" id="timer">⏱ 120</div><div class="muted" id="syncLabel">—</div></div>
 <div class="score red"><span style="font-size:30px">🧑‍🦱</span><div><h3 id="gP2Name">لاعب 2</h3><p>الجولة: <b id="p2Round">0</b> • <span id="p2Role">—</span></p></div><div class="pts" id="gP2Pts">0</div></div>
 </div>
 <div class="card" style="margin-top:14px" id="phaseBox"></div>
@@ -164,7 +164,7 @@ td input:disabled{background:#e2e8f0}td input.ok{border-color:#22c55e}td input.b
 <section id="screen-game" class="screen">
 <div class="scoreboard">
 <div class="score blue"><span style="font-size:30px">🧑‍🦰</span><div><h3 id="gP1Name">لاعب 1</h3><p>الجولة: <b id="p1Round">0</b> • <span id="p1Role">—</span></p></div><div class="pts" id="gP1Pts">0</div></div>
-<div class="score center-card"><div>الجولة <b id="roundNum">1</b> • <span id="phaseLabel">اختيار الحرف</span></div><div class="timer" id="timer">⏱ 90</div><div class="muted" id="syncLabel">—</div></div>
+<div class="score center-card"><div>الجولة <b id="roundNum">1</b> • <span id="phaseLabel">اختيار الحرف</span></div><div class="timer" id="timer">⏱ 120</div><div class="muted" id="syncLabel">—</div></div>
 <div class="score red"><span style="font-size:30px">🧑‍🦱</span><div><h3 id="gP2Name">لاعب 2</h3><p>الجولة: <b id="p2Round">0</b> • <span id="p2Role">—</span></p></div><div class="pts" id="gP2Pts">0</div></div>
 </div>
 <div class="card" style="margin-top:14px" id="phaseBox"></div>
@@ -259,27 +259,57 @@ function connectToHost(hostId,onOpen,onFail){
   return ()=>{stopped=true};
 }
 function attachConn(c){conn=c;c.on('open',()=>{setConnUI(true,'Connected (WebRTC)');if(isHost)sendState()});c.on('data',m=>{if(isHost)handleAction(m,c);else handleHost(m)});c.on('close',()=>{setConnUI(false,'Peer disconnected');toast('⚠️ الخصم انقطع — يمكنه إعادة التحميل بنفس الرمز')})}
-function sendState(){if(conn&&conn.open&&state)conn.send({type:'state',state})}
+function sendState(){
+ if(!conn||!conn.open||!state)return;
+ let outgoing=JSON.parse(JSON.stringify(state));
+ // During the two-minute writing phase, each device receives only its own answers.
+ if(outgoing.status==='fill'){
+   outgoing.game.answers.p1=Array(8).fill('');
+ }
+ conn.send({type:'state',state:outgoing});
+}
 function sendAction(a,p){if(!conn||!conn.open){toast('غير متصل بعد — انتظر Connected');return false}conn.send({type:'action',action:a,payload:p,slot:mySlot});return true}
-function newState(p1,p2){return{code:roomCode,gameId:'letter',status:'select',p1,p2,p1Ready:true,p2Ready:!!p2,game:{round:1,letter:'',letterMaster:0,usedLetters:[],answers:{p1:Array(8).fill(''),p2:Array(8).fill('')},submitted:{p1:false,p2:false},judge:{p1:Array(8).fill(true),p2:Array(8).fill(true)},roundScore:{p1:0,p2:0},total:{p1:0,p2:0},winner:null,timerLen:90,lastSummary:''}}}
+function newState(p1,p2){return{code:roomCode,gameId:'letter',status:'select',p1,p2,p1Ready:true,p2Ready:!!p2,game:{round:1,letter:'',letterMaster:0,usedLetters:[],answers:{p1:Array(8).fill(''),p2:Array(8).fill('')},submitted:{p1:false,p2:false},judged:{p1:Array(8).fill(null),p2:Array(8).fill(null)},gradeSubmitted:{p1:false,p2:false},roundScore:{p1:0,p2:0},total:{p1:0,p2:0},winner:null,timerLen:120,deadline:null,lastSummary:''}}}
 function broadcast(){saveSession();if(isHost)sendState();renderAll()}
 function handleAction(msg,c){
-if(!msg||msg.type!=='action')return;
-if(msg.action==='hello'){let incoming=String(msg.payload?.name||'لاعب 2').slice(0,24);if(state.p2&&state.p2!==incoming){c.send({type:'error',message:'الغرفة ممتلئة.'});return}state.p2=incoming;state.p2Ready=true;broadcast();return}
-if(msg.action==='request-navigate'){let requested=msg.payload&&msg.payload.game;let t=(requested===nextGameFile()||requested===prevGameFile())?requested:nextGameFile();if(conn&&conn.open)conn.send({type:'navigate',game:t});setTimeout(()=>{location.href=buildNavUrl(t)},350);return}
-if(msg.slot!=='p1'&&msg.slot!=='p2')return;
-if(msg.action==='pick-letter'){if(msg.slot!==(state.game.letterMaster===0?'p1':'p2'))return;if(state.status!=='select')return;let L=msg.payload.letter;if(state.game.usedLetters.includes(L))return;state.game.letter=L;state.game.usedLetters.push(L);state.game.answers={p1:Array(8).fill(''),p2:Array(8).fill('')};state.game.submitted={p1:false,p2:false};state.game.judge={p1:Array(8).fill(true),p2:Array(8).fill(true)};state.status='fill';broadcast();return}
-if(msg.action==='type'){if(state.status!=='fill'||state.game.submitted[msg.slot])return;let i=Number(msg.payload?.i);if(!Number.isInteger(i)||i<0||i>=8)return;state.game.answers[msg.slot][i]=String(msg.payload.v||'').slice(0,40);saveSession();sendState();renderAll();return}
-if(msg.action==='submit'){if(state.status!=='fill')return;state.game.submitted[msg.slot]=true;if(state.game.submitted.p1&&state.game.submitted.p2){state.game.judge={p1:state.game.answers.p1.map(a=>startsWithLetter(a,state.game.letter)),p2:state.game.answers.p2.map(a=>startsWithLetter(a,state.game.letter))};state.status='judge'}broadcast();return}
-if(msg.action==='toggle-judge'){if(msg.slot!==(state.game.letterMaster===0?'p1':'p2'))return;if(state.status!=='judge')return;state.game.judge[msg.payload.slot][msg.payload.i]=!!msg.payload.val;broadcast();return}
-if(msg.action==='confirm'){if(msg.slot!==(state.game.letterMaster===0?'p1':'p2'))return;if(state.status!=='judge')return;confirmOnHost();return}
-if(msg.action==='next'){if(msg.slot!==(state.game.letterMaster===0?'p1':'p2'))return;if(state.status!=='results')return;state.game.round++;state.game.letter='';state.game.answers={p1:Array(8).fill(''),p2:Array(8).fill('')};state.game.submitted={p1:false,p2:false};state.game.judge={p1:Array(8).fill(true),p2:Array(8).fill(true)};state.game.roundScore={p1:0,p2:0};state.status='select';broadcast();return}
-if(msg.action==='rematch'){if(state.status!=='finished')return;state.status='select';state.game={round:1,letter:'',letterMaster:0,usedLetters:[],answers:{p1:Array(8).fill(''),p2:Array(8).fill('')},submitted:{p1:false,p2:false},judge:{p1:Array(8).fill(true),p2:Array(8).fill(true)},roundScore:{p1:0,p2:0},total:{p1:0,p2:0},winner:null,timerLen:90,lastSummary:''};broadcast();return}
+ if(!msg||msg.type!=='action')return;
+ if(msg.action==='hello'){let incoming=String(msg.payload?.name||'لاعب 2').slice(0,24);if(state.p2&&state.p2!==incoming){c.send({type:'error',message:'الغرفة ممتلئة.'});return}state.p2=incoming;state.p2Ready=true;broadcast();return}
+ if(msg.action==='request-navigate'){let requested=msg.payload&&msg.payload.game;let t=(requested===nextGameFile()||requested===prevGameFile())?requested:nextGameFile();if(conn&&conn.open)conn.send({type:'navigate',game:t});setTimeout(()=>{location.href=buildNavUrl(t)},350);return}
+ if(msg.slot!=='p1'&&msg.slot!=='p2')return;
+ const g=state.game;
+ if(msg.action==='pick-letter'){if(msg.slot!==(g.letterMaster===0?'p1':'p2')||state.status!=='select')return;let L=msg.payload.letter;if(!LETTERS.includes(L)||g.usedLetters.includes(L))return;g.letter=L;g.usedLetters.push(L);g.answers={p1:Array(8).fill(''),p2:Array(8).fill('')};g.submitted={p1:false,p2:false};g.judged={p1:Array(8).fill(null),p2:Array(8).fill(null)};g.gradeSubmitted={p1:false,p2:false};g.deadline=Date.now()+120000;state.status='fill';broadcast();startLetterTimer();return}
+ if(msg.action==='type'){if(state.status!=='fill'||g.submitted[msg.slot]||Date.now()>=g.deadline)return;let i=Number(msg.payload?.i);if(!Number.isInteger(i)||i<0||i>=8)return;g.answers[msg.slot][i]=String(msg.payload.v||'').slice(0,40);saveSession();sendState();renderAll();return}
+ if(msg.action==='submit'){if(state.status!=='fill')return;if(Date.now()>=g.deadline){state.status='grade';clearInterval(timerInt);broadcast();return}g.submitted[msg.slot]=true;broadcast();return}
+ if(msg.action==='grade-answer'){if(state.status!=='grade')return;let i=Number(msg.payload?.i);if(!Number.isInteger(i)||i<0||i>=8)return;const target=msg.slot==='p1'?'p2':'p1';g.judged[msg.slot][i]=!!msg.payload.valid;broadcast();return}
+ if(msg.action==='submit-grade'){if(state.status!=='grade')return;g.gradeSubmitted[msg.slot]=true;if(g.gradeSubmitted.p1&&g.gradeSubmitted.p2)confirmOnHost();else broadcast();return}
+ if(msg.action==='next'){if(state.status!=='results')return;if(msg.slot!==(g.letterMaster===0?'p1':'p2'))return;g.round++;g.letter='';g.answers={p1:Array(8).fill(''),p2:Array(8).fill('')};g.submitted={p1:false,p2:false};g.judged={p1:Array(8).fill(null),p2:Array(8).fill(null)};g.gradeSubmitted={p1:false,p2:false};g.roundScore={p1:0,p2:0};g.deadline=null;state.status='select';broadcast();return}
+ if(msg.action==='rematch'){if(state.status!=='finished')return;state.status='select';state.game={round:1,letter:'',letterMaster:0,usedLetters:[],answers:{p1:Array(8).fill(''),p2:Array(8).fill('')},submitted:{p1:false,p2:false},judged:{p1:Array(8).fill(null),p2:Array(8).fill(null)},gradeSubmitted:{p1:false,p2:false},roundScore:{p1:0,p2:0},total:{p1:0,p2:0},winner:null,timerLen:120,deadline:null,lastSummary:''};broadcast();return}
 }
-function handleHost(msg){if(!msg)return;if(msg.type==='state'){state=msg.state;saveSession();renderAll()}if(msg.type==='navigate'){saveSession();let t=msg.game||nextGameFile();setTimeout(()=>{location.href=buildNavUrl(t)},200)}if(msg.type==='error')toast('❌ '+msg.message)}
-function confirmOnHost(){let g=state.game,r1=0,r2=0;for(let i=0;i<8;i++){if(g.judge.p1[i]&&startsWithLetter(g.answers.p1[i],g.letter))r1+=PTS;if(g.judge.p2[i]&&startsWithLetter(g.answers.p2[i],g.letter))r2+=PTS}g.roundScore={p1:r1,p2:r2};g.total={p1:g.total.p1+r1,p2:g.total.p2+r2};g.letterMaster=r1>r2?0:r2>r1?1:g.letterMaster;g.lastSummary=r1===r2?`تعادل! سيد الحرف يبقى ${g.letterMaster===0?state.p1:state.p2}.`:`فاز بالجولة ${r1>r2?state.p1:state.p2} (${Math.max(r1,r2)} مقابل ${Math.min(r1,r2)}).`;if(g.total.p1>=WIN&&g.total.p1>g.total.p2){g.winner=0;state.status='finished'}else if(g.total.p2>=WIN&&g.total.p2>g.total.p1){g.winner=1;state.status='finished'}else state.status='results';broadcast()}
+function handleHost(msg){if(!msg)return;if(msg.type==='state'){state=msg.state;saveSession();renderAll();if(state.status==='fill')startLetterTimer()}if(msg.type==='navigate'){saveSession();let t=msg.game||nextGameFile();setTimeout(()=>{location.href=buildNavUrl(t)},200)}if(msg.type==='error')toast('❌ '+msg.message)}
+function confirmOnHost(){
+ const g=state.game;
+ // p1 grades p2; p2 grades p1.
+ let p1=0,p2=0;
+ for(let i=0;i<8;i++){
+   if(g.judged.p2[i]===true&&String(g.answers.p1[i]||'').trim())p1+=PTS;
+   if(g.judged.p1[i]===true&&String(g.answers.p2[i]||'').trim())p2+=PTS;
+ }
+ g.roundScore={p1,p2};g.total.p1+=p1;g.total.p2+=p2;
+ g.letterMaster=p1>p2?0:p2>p1?1:g.letterMaster;
+ g.lastSummary=p1===p2?'تعادل في الجولة.':`فاز ${p1>p2?state.p1:state.p2} بالجولة (${Math.max(p1,p2)} مقابل ${Math.min(p1,p2)}).`;
+ if(g.total.p1>=WIN&&g.total.p1>g.total.p2){g.winner=0;state.status='finished'}
+ else if(g.total.p2>=WIN&&g.total.p2>g.total.p1){g.winner=1;state.status='finished'}
+ else state.status='results';
+ broadcast();
+}
 async function createOrJoin(){if(location.protocol==='file:'){toast('للاتصال أونلاين افتح اللعبة عبر HTTPS أو localhost، وليس بالنقر المزدوج على الملف.');return}let p1=$('p1Name').value.trim()||'لاعب 1',p2=$('p2Name').value.trim()||'لاعب 2',code=$('roomCodeInput').value.trim();let err=$('joinError');err.classList.add('hidden');if(code&&!/^\d{5}$/.test(code)){err.textContent='❌ أدخل رمزاً من 5 أرقام أو اترك الخانة فارغة لإنشاء غرفة.';err.classList.remove('hidden');return}if(/^\d{5}$/.test(code)){myName=p2;roomCode=code;mySlot='p2';isHost=false;saveSession();try{await makePeer('ropebattle-'+code+'-guest-'+Math.random().toString(36).slice(2,7))}catch(e){toast('❌ فشل الإشارة — تحقق من الإنترنت');return}setConnUI(false,'Connecting…');connectToHost('ropebattle-'+code,c=>c.send({type:'action',action:'hello',payload:{name:myName},slot:'p2'}),()=>{err.textContent='❌ الغرفة غير موجودة — تحقق من الرمز وأن المضيف ما زال في الصفحة';err.classList.remove('hidden')});return}myName=p1;roomCode=String(Math.floor(10000+Math.random()*90000));mySlot='p1';isHost=true;state=newState(p1,null);saveSession();try{await makePeer('ropebattle-'+roomCode)}catch(e){toast('❌ فشل بدء الإشارة');return}setConnUI(false,'Waiting for Player 2…');$('roomInfo').textContent='🌐 غرفة: '+roomCode+' — شارك الرمز مع اللاعب 2.';showScreen('game');renderAll();toast('غرفة '+roomCode+' أُنشئت')}
-function requestRematch(){if(isHost){state.status='select';state.game={round:1,letter:'',letterMaster:0,usedLetters:[],answers:{p1:Array(8).fill(''),p2:Array(8).fill('')},submitted:{p1:false,p2:false},judge:{p1:Array(8).fill(true),p2:Array(8).fill(true)},roundScore:{p1:0,p2:0},total:{p1:0,p2:0},winner:null,timerLen:90,lastSummary:''};broadcast()}else sendAction('rematch',{})}
+function requestRematch(){
+ if(isHost){
+  state.status='select';
+  state.game={round:1,letter:'',letterMaster:0,usedLetters:[],answers:{p1:Array(8).fill(''),p2:Array(8).fill('')},submitted:{p1:false,p2:false},judged:{p1:Array(8).fill(null),p2:Array(8).fill(null)},gradeSubmitted:{p1:false,p2:false},roundScore:{p1:0,p2:0},total:{p1:0,p2:0},winner:null,timerLen:120,deadline:null,lastSummary:''};
+  broadcast();
+ }else sendAction('rematch',{});
+}
 function leaveRoom(){try{conn&&conn.close()}catch(e){}try{peer&&peer.destroy()}catch(e){}state=null;sessionStorage.removeItem('rb_code');showScreen('menu')}
 function renderAll(){
   if(!state)return;
@@ -290,23 +320,92 @@ function renderAll(){
   if(state.status==='finished')showWin();
 }
 function stopTimer(){clearInterval(timerInt)}
+function startLetterTimer(){
+ clearInterval(timerInt);
+ timerInt=setInterval(()=>{
+   if(!state||state.status!=='fill'){clearInterval(timerInt);return}
+   const left=Math.max(0,Math.ceil((state.game.deadline-Date.now())/1000));
+   const el=$('timer');if(el)el.textContent='⏱ '+left;
+   const inBox=$('phaseBox');const big=inBox&&inBox.querySelector('div[style*="font-size:30px"]');if(big)big.textContent=left+' ثانية';
+   if(isHost&&Date.now()>=state.game.deadline){clearInterval(timerInt);state.status='grade';broadcast()}
+ },200);
+}
 function renderGame(){if(!state||!state.game)return;let g=state.game;$('gP1Name').textContent=state.p1;$('gP2Name').textContent=state.p2||'لاعب 2';$('roundNum').textContent=g.round;$('gP1Pts').textContent=g.total.p1;$('gP2Pts').textContent=g.total.p2;$('p1Round').textContent=g.roundScore.p1;$('p2Round').textContent=g.roundScore.p2;$('p1Role').textContent=g.letterMaster===0?'👑 سيد الحرف':'✏️ يجيب';$('p2Role').textContent=g.letterMaster===1?'👑 سيد الحرف':'✏️ يجيب';$('syncLabel').textContent=(connected?'🌐 CONNECTED • ':'● ')+roomCode;if(!$('screen-game').classList.contains('show'))showScreen('game');renderPhase()}
 function isMasterMe(){return mySlot===(state.game.letterMaster===0?'p1':'p2')}
-function renderPhase(){let box=$('phaseBox'),g=state.game,masterName=g.letterMaster===0?state.p1:state.p2;$('phaseLabel').textContent={select:'اختيار الحرف',fill:'ملء الجدول',judge:'التحكيم',results:'نتائج الجولة'}[state.status]||state.status;if(state.status==='select'){stopTimer();box.innerHTML=`<h2 style="text-align:center">👑 سيد الحرف: ${esc(masterName)}</h2><p class="muted" style="text-align:center">الجولة ${g.round} — ${isMasterMe()?'دورك لاختيار الحرف':'بانتظار سيد الحرف'}</p>${isMasterMe()?'':`<div class="alert danger">⏳ بانتظار <b>${esc(masterName)}</b> — لا يمكنك اختيار الحرف.</div>`}${isMasterMe()?`<div class="letters">${LETTERS.map(L=>`<button class="letter-btn ${g.usedLetters.includes(L)?'used':''}" ${g.usedLetters.includes(L)?'disabled':''} onclick="pickLetter('${L}')">${L}</button>`).join('')}</div>`:''}`;return}if(state.status==='fill'){box.innerHTML=`<div style="text-align:center"><div class="letter-big">${esc(g.letter)}</div><p class="muted">كل الإجابات يجب أن تبدأ بـ <b style="color:#fff">${esc(g.letter)}</b></p></div><div class="table-wrap"><table><thead><tr><th>الفئة</th><th>🔵 ${esc(state.p1)}</th><th>🔴 ${esc(state.p2||'لاعب 2')}</th></tr></thead><tbody>${CATS.map((c,i)=>`<tr><td style="font-weight:900">${c.icon} ${c.ar}<div style="font-size:11px;color:#9fb3d6">مثال: ${c.ex}</div></td><td><input data-answer-id="p1-${i}" value="${esc(g.answers.p1[i]||'')}" placeholder="${c.ar}…" oninput="onType('p1',${i},this.value)" ${mySlot!=='p1'?'disabled':''} class="${g.answers.p1[i]?(startsWithLetter(g.answers.p1[i],g.letter)?'ok':'bad'):''}"></td><td><input data-answer-id="p2-${i}" value="${esc(g.answers.p2[i]||'')}" placeholder="${c.ar}…" oninput="onType('p2',${i},this.value)" ${mySlot!=='p2'?'disabled':''} class="${g.answers.p2[i]?(startsWithLetter(g.answers.p2[i],g.letter)?'ok':'bad'):''}"></td></tr>`).join('')}</tbody></table></div><div class="row" style="margin-top:14px"><button class="btn ${mySlot==='p1'?'btn-blue':'btn-red'}" onclick="submitMe()" ${g.submitted[mySlot]?'disabled':''}>✅ إرسال إجاباتي ${g.submitted[mySlot]?'✓':''}</button></div><div class="alert">${esc(state.p1)} ${g.submitted.p1?'✅ أرسل':'⏳ لم يرسل'} — ${esc(state.p2||'لاعب 2')} ${g.submitted.p2?'✅ أرسل':'⏳ لم يرسل'}</div>`;return}if(state.status==='judge'){stopTimer();box.innerHTML=`<h2 style="text-align:center">⚖️ التحكيم — سيد الحرف: ${esc(masterName)}</h2><p class="muted" style="text-align:center">${isMasterMe()?'راجع الإجابات. ألغِ تحديد الخاطئة ثم أكّد.':'بانتظار سيد الحرف للتحكيم.'}</p><div class="table-wrap"><table><thead><tr><th>الفئة</th><th>🔵 ${esc(state.p1)}</th><th>تحكيم</th><th>🔴 ${esc(state.p2||'لاعب 2')}</th><th>تحكيم</th></tr></thead><tbody>${CATS.map((c,i)=>`<tr><td style="font-weight:900">${c.icon} ${c.ar}</td><td style="font-weight:800">${esc(g.answers.p1[i]||'—')}</td><td>${judgeCell('p1',i)}</td><td style="font-weight:800">${esc(g.answers.p2[i]||'—')}</td><td>${judgeCell('p2',i)}</td></tr>`).join('')}</tbody></table></div>${isMasterMe()?`<button class="btn btn-green" style="margin-top:14px" onclick="confirmJ()">✅ تأكيد النتائج</button>`:''}`;return}if(state.status==='results'){stopTimer();box.innerHTML=`<h2 style="text-align:center">📊 نتائج الجولة ${g.round}</h2><p class="muted" style="text-align:center">الحرف: <b style="color:#ffc93c;font-size:22px">${esc(g.letter)}</b> — ${esc(g.lastSummary||'')}</p><div class="row" style="margin-top:12px"><div class="card" style="text-align:center"><b>🔵 ${esc(state.p1)}</b><div style="font-size:32px;font-weight:900">+${g.roundScore.p1}</div><p class="muted">المجموع ${g.total.p1}</p></div><div class="card" style="text-align:center"><b>🔴 ${esc(state.p2||'لاعب 2')}</b><div style="font-size:32px;font-weight:900">+${g.roundScore.p2}</div><p class="muted">المجموع ${g.total.p2}</p></div></div><button class="btn btn-gold" style="margin-top:12px" onclick="nextRound()">➡️ الجولة التالية</button>`;return}}
+function renderPhase(){
+ let box=$('phaseBox'),g=state.game,masterName=g.letterMaster===0?state.p1:state.p2;
+ $('phaseLabel').textContent={select:'اختيار الحرف',fill:'ملء الجدول',grade:'تصحيح الإجابات',results:'نتائج الجولة'}[state.status]||state.status;
+ if(state.status==='select'){
+   stopTimer();$('timer').textContent='⏱ 120';
+   box.innerHTML=`<h2 style="text-align:center">👑 سيد الحرف: ${esc(masterName)}</h2><p class="muted" style="text-align:center">الجولة ${g.round} — ${isMasterMe()?'اختر حرف الجولة':'بانتظار سيد الحرف'}</p>${isMasterMe()?'':`<div class="alert danger">⏳ بانتظار <b>${esc(masterName)}</b>.</div>`}${isMasterMe()?`<div class="letters">${LETTERS.map(L=>`<button class="letter-btn ${g.usedLetters.includes(L)?'used':''}" ${g.usedLetters.includes(L)?'disabled':''} onclick="pickLetter('${L}')">${L}</button>`).join('')}</div>`:''}`;
+   return;
+ }
+ if(state.status==='fill'){
+   const left=Math.max(0,Math.ceil(((g.deadline||Date.now()+120000)-Date.now())/1000));
+   $('timer').textContent='⏱ '+left;
+   const answers=g.answers[mySlot]||Array(8).fill('');
+   box.innerHTML=`<div style="text-align:center"><div class="letter-big">${esc(g.letter)}</div><p class="muted">لديك دقيقتان لملء الفئات الثماني. إجاباتك خاصة ولا يراها خصمك.</p><div style="font-size:30px;color:#ffc93c;font-weight:900">${left} ثانية</div></div>
+   <div class="table-wrap"><table style="min-width:360px"><thead><tr><th>الفئة</th><th>إجابتك — ${esc(myName)}</th></tr></thead><tbody>${CATS.map((c,i)=>`<tr><td style="font-weight:900">${c.icon} ${c.ar}</td><td><input data-answer-id="${mySlot}-${i}" value="${esc(answers[i]||'')}" placeholder="${c.ar}…" oninput="onType('${mySlot}',${i},this.value)" ${g.submitted[mySlot]?'disabled':''} class="${answers[i]?(startsWithLetter(answers[i],g.letter)?'ok':'bad'):''}"></td></tr>`).join('')}</tbody></table></div>
+   <div class="row" style="margin-top:14px"><button class="btn ${mySlot==='p1'?'btn-blue':'btn-red'}" onclick="submitMe()" ${g.submitted[mySlot]?'disabled':''}>${g.submitted[mySlot]?'✅ تم إرسال إجاباتك':'إرسال الإجابات'}</button></div>
+   <div class="alert">${g.submitted[mySlot]?'تم حفظ إجاباتك بسرية. انتظر انتهاء الوقت.':'خصمك لا يستطيع رؤية إجاباتك.'}</div>`;
+   return;
+ }
+ if(state.status==='grade'){
+   stopTimer();$('timer').textContent='انتهى الوقت';
+   const opponent=mySlot==='p1'?'p2':'p1', opponentName=opponent==='p1'?state.p1:state.p2;
+   const judged=g.judged[mySlot]||Array(8).fill(null);
+   box.innerHTML=`<h2 style="text-align:center">⚖️ صحّح إجابات ${esc(opponentName)}</h2><p class="muted" style="text-align:center">كل لاعب يصحح إجابات خصمه. ضع علامة على كل إجابة صحيحة ثم أرسل التصحيح.</p>
+   <div class="table-wrap"><table style="min-width:420px"><thead><tr><th>الفئة</th><th>إجابة الخصم</th><th>التصحيح</th></tr></thead><tbody>${CATS.map((c,i)=>`<tr><td>${c.icon} ${c.ar}</td><td style="font-weight:800">${esc(g.answers[opponent][i]||'—')}</td><td><div class="judge-row"><button class="jb ${judged[i]===true?'on1':''}" onclick="gradeAnswer(${i},true)" ${g.gradeSubmitted[mySlot]?'disabled':''}>✅ صحيحة</button><button class="jb ${judged[i]===false?'on0':''}" onclick="gradeAnswer(${i},false)" ${g.gradeSubmitted[mySlot]?'disabled':''}>❌ خاطئة</button></div></td></tr>`).join('')}</tbody></table></div>
+   <div class="row" style="margin-top:14px"><button class="btn btn-green" onclick="submitGrade()" ${g.gradeSubmitted[mySlot]?'disabled':''}>${g.gradeSubmitted[mySlot]?'تم إرسال التصحيح ✓':'تأكيد التصحيح'}</button></div>
+   <div class="alert">${g.gradeSubmitted[mySlot]?'تم إرسال تصحيحك. بانتظار اللاعب الآخر.':'راجع إجابات الخصم ثم أكد.'} </div>`;
+   return;
+ }
+ if(state.status==='results'){
+   stopTimer();$('timer').textContent='✓';
+   box.innerHTML=`<h2 style="text-align:center">📊 نتائج الجولة ${g.round}</h2><p class="muted" style="text-align:center">الحرف: <b style="color:#ffc93c;font-size:22px">${esc(g.letter)}</b> — ${esc(g.lastSummary||'')}</p>
+   <div class="table-wrap"><table><thead><tr><th>الفئة</th><th>${esc(state.p1)}</th><th>${esc(state.p2)}</th></tr></thead><tbody>${CATS.map((c,i)=>`<tr><td>${c.icon} ${c.ar}</td><td>${esc(g.answers.p1[i]||'—')} ${g.judged.p2[i]===true?'✅':g.judged.p2[i]===false?'❌':''}</td><td>${esc(g.answers.p2[i]||'—')} ${g.judged.p1[i]===true?'✅':g.judged.p1[i]===false?'❌':''}</td></tr>`).join('')}</tbody></table></div>
+   <div class="row" style="margin-top:12px"><div class="card" style="text-align:center"><b>🔵 ${esc(state.p1)}</b><div style="font-size:32px;font-weight:900">+${g.roundScore.p1}</div><p class="muted">المجموع ${g.total.p1}</p></div><div class="card" style="text-align:center"><b>🔴 ${esc(state.p2||'لاعب 2')}</b><div style="font-size:32px;font-weight:900">+${g.roundScore.p2}</div><p class="muted">المجموع ${g.total.p2}</p></div></div>
+   ${isMasterMe()?`<button class="btn btn-gold" style="margin-top:12px" onclick="nextRound()">➡️ الجولة التالية</button>`:`<div class="alert">بانتظار سيد الحرف لبدء الجولة التالية.</div>`}`;
+   return;
+ }
+}
 function judgeCell(slot,i){if(!isMasterMe())return state.game.judge[slot][i]?'✅ صحيحة':'❌ خاطئة';let v=state.game.judge[slot][i];return `<div class="judge-row"><button class="jb ${v?'on1':''}" onclick="toggleJ('${slot}',${i},true)">✅</button><button class="jb ${!v?'on0':''}" onclick="toggleJ('${slot}',${i},false)">❌</button></div>`}
-function pickLetter(L){if(!isMasterMe()){toast('⛔ فقط سيد الحرف يختار');return}if(isHost){state.game.letter=L;state.game.usedLetters.push(L);state.game.answers={p1:Array(8).fill(''),p2:Array(8).fill('')};state.game.submitted={p1:false,p2:false};state.game.judge={p1:Array(8).fill(true),p2:Array(8).fill(true)};state.status='fill';broadcast()}else sendAction('pick-letter',{letter:L})}
-function onType(slot,i,v){if(mySlot!==slot||state.game.submitted[slot])return;if(isHost){state.game.answers[slot][i]=String(v).slice(0,40);saveSession();sendState()}else sendAction('type',{i,v})}
-function submitMe(){if(isHost){state.game.submitted[mySlot]=true;if(state.game.submitted.p1&&state.game.submitted.p2){state.game.judge={p1:state.game.answers.p1.map(a=>startsWithLetter(a,state.game.letter)),p2:state.game.answers.p2.map(a=>startsWithLetter(a,state.game.letter))};state.status='judge'}broadcast()}else sendAction('submit',{})}
-function toggleJ(slot,i,val){if(!isMasterMe())return;if(isHost){state.game.judge[slot][i]=val;broadcast()}else sendAction('toggle-judge',{slot,i,val})}
-function confirmJ(){if(!isMasterMe())return;if(isHost)confirmOnHost();else sendAction('confirm',{})}
-function nextRound(){if(!isMasterMe()){toast('بانتظار سيد الحرف الجديد');return}if(isHost){state.game.round++;state.game.letter='';state.game.answers={p1:Array(8).fill(''),p2:Array(8).fill('')};state.game.submitted={p1:false,p2:false};state.game.judge={p1:Array(8).fill(true),p2:Array(8).fill(true)};state.game.roundScore={p1:0,p2:0};state.status='select';broadcast()}else sendAction('next',{})}
+function pickLetter(L){if(!isMasterMe())return;if(isHost){let g=state.game;g.letter=L;g.usedLetters.push(L);g.answers={p1:Array(8).fill(''),p2:Array(8).fill('')};g.submitted={p1:false,p2:false};g.judged={p1:Array(8).fill(null),p2:Array(8).fill(null)};g.gradeSubmitted={p1:false,p2:false};g.deadline=Date.now()+120000;state.status='fill';broadcast();startLetterTimer()}else sendAction('pick-letter',{letter:L})}
+function onType(slot,i,v){if(mySlot!==slot||state.status!=='fill'||state.game.submitted[slot])return;if(Date.now()>=state.game.deadline){toast('انتهى الوقت');return}if(isHost){state.game.answers[slot][i]=String(v).slice(0,40);saveSession();renderAll()}else sendAction('type',{i,v})}
+function submitMe(){
+ if(state.status!=='fill'||state.game.submitted[mySlot])return;
+ if(isHost){state.game.submitted[mySlot]=true;broadcast()}
+ else sendAction('submit',{});
+}
+function toggleJ(slot,i,val){if(state.status!=='grade'||slot!==(mySlot==='p1'?'p2':'p1'))return;gradeAnswer(i,val)}
+function confirmJ(){submitGrade()}
+function nextRound(){if(!isMasterMe())return;if(isHost){let g=state.game;g.round++;g.letter='';g.answers={p1:Array(8).fill(''),p2:Array(8).fill('')};g.submitted={p1:false,p2:false};g.judged={p1:Array(8).fill(null),p2:Array(8).fill(null)};g.gradeSubmitted={p1:false,p2:false};g.roundScore={p1:0,p2:0};g.deadline=null;state.status='select';broadcast()}else sendAction('next',{})}
+function gradeAnswer(i,valid){
+ if(state.status!=='grade'||state.game.gradeSubmitted[mySlot])return;
+ const opponent=mySlot==='p1'?'p2':'p1';
+ if(isHost){state.game.judged[mySlot][i]=!!valid;broadcast()}
+ else sendAction('grade-answer',{i,valid});
+}
+function submitGrade(){
+ if(state.status!=='grade'||state.game.gradeSubmitted[mySlot])return;
+ if(isHost){state.game.gradeSubmitted[mySlot]=true;if(state.game.gradeSubmitted.p1&&state.game.gradeSubmitted.p2)confirmOnHost();else broadcast()}
+ else sendAction('submit-grade',{});
+}
 function showWin(){if(!state)return;let g=state.game,w=g.winner??(g.total.p1>=g.total.p2?0:1),n=w===0?state.p1:state.p2;$('winnerName').textContent='🏆 '+n+' يفوز!';$('winnerText').textContent=`النتيجة: ${state.p1} ${g.total.p1} — ${g.total.p2} ${state.p2} • ${g.round} جولات`;showScreen('win');play(800)}
 (async()=>{let r=readPersisted();if(r.code&&r.slot){
   roomCode=r.code;mySlot=r.slot;myName=r.name||'Player';isHost=(r.slot==='p1');
-  try{let saved=sessionStorage.getItem('rb_letter_state');if(saved){let parsed=JSON.parse(saved);if(parsed&&parsed.gameId==='letter'&&parsed.code===roomCode)state=parsed}}catch(e){}
+  try{let saved=sessionStorage.getItem('rb_letter_state');if(saved){let parsed=JSON.parse(saved);if(parsed&&parsed.gameId==='letter'&&parsed.code===roomCode){
+ state=parsed;
+ const gg=state.game;
+ if(!gg.judged)gg.judged={p1:Array(8).fill(null),p2:Array(8).fill(null)};
+ if(!gg.gradeSubmitted)gg.gradeSubmitted={p1:false,p2:false};
+ if(!gg.timerLen)gg.timerLen=120;
+ if(!gg.submitted)gg.submitted={p1:false,p2:false};
+ if(!gg.answers)gg.answers={p1:Array(8).fill(''),p2:Array(8).fill('')};
+}}}catch(e){}
   $('roomInfo').textContent='🔄 إعادة الاتصال بنفس الغرفة: '+r.code+' كـ '+(r.slot==='p1'?'لاعب 1 (مضيف)':'لاعب 2')+' — لا تنشئ غرفة جديدة.';
   try{await makePeer(isHost?'ropebattle-'+r.code:'ropebattle-'+r.code+'-guest-'+Math.random().toString(36).slice(2,7))}catch(e){toast('تعذر الاتصال: '+(e.message||'PeerJS'));return}
-  if(isHost){if(!state)state=newState(r.p1||myName,null);setConnUI(false,'Waiting for opponent to reconnect…');showScreen('game');renderAll()}
+  if(isHost){if(!state)state=newState(r.p1||myName,null);if(state.status==='fill'){if(!state.game.deadline)state.game.deadline=Date.now()+120000;startLetterTimer()}setConnUI(false,'Waiting for opponent to reconnect…');showScreen('game');renderAll()}
   else{try{connectToHost('ropebattle-'+r.code,c=>c.send({type:'action',action:'hello',payload:{name:myName},slot:'p2'}),()=>toast('تعذر إعادة الاتصال — اطلب من المضيف إعادة فتح الغرفة'))}catch(e){toast('خطأ إعادة الاتصال: '+e.message)}}
 }})();
 </script>

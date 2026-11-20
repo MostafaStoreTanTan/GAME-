@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#10172b">
+<title>ROPE BATTLE · Shape Match</title>
+<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<style>
+:root{--bg:#10172b;--panel:#1b2541;--panel2:#111b32;--muted:#aab7d4;--blue:#58b8ff;--red:#ff6b78;--gold:#ffd166;--green:#68e0a1}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(circle at 50% -10%,#2c416d 0,#10172b 58%);color:#fff;font-family:Tahoma,Arial,sans-serif;padding:16px}
+.app{max-width:1050px;margin:auto}.top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:16px}.brand{font-size:clamp(22px,4vw,32px);font-weight:1000;letter-spacing:1px;direction:ltr}.brand span{color:var(--gold)}.status{font-size:12px;color:var(--muted);border:1px solid #ffffff25;border-radius:99px;padding:8px 12px}
+.panel{background:linear-gradient(145deg,#202d4e,#17213a);border:1px solid #ffffff20;border-radius:24px;padding:clamp(16px,3vw,28px);box-shadow:0 22px 60px #0005}.screen{display:none}.screen.active{display:block}
+h1{font-size:clamp(26px,5vw,40px);margin:0 0 8px}h2{margin:0 0 10px}p{color:var(--muted);line-height:1.6}.row{display:flex;gap:10px;flex-wrap:wrap}.row>*{flex:1}
+button,input,textarea{font:inherit}button{border:0;border-radius:14px;padding:13px 17px;font-weight:900;cursor:pointer;transition:.15s}button:disabled{opacity:.45;cursor:not-allowed}button:active{transform:scale(.98)}.primary{background:linear-gradient(135deg,#ffd477,#ff9e4a);color:#38220b}.secondary{background:#344568;color:white;border:1px solid #ffffff25}.blue{background:#1688db;color:#fff}.red{background:#d94d60;color:#fff}.green{background:#16865d;color:white}
+input,textarea{width:100%;padding:14px;background:#101a31;color:#fff;border:1px solid #ffffff2b;border-radius:13px;outline:none;margin:8px 0 12px}textarea{min-height:95px;resize:vertical}.code{font-size:32px;letter-spacing:8px;color:var(--gold);font-weight:1000;text-align:center;background:#101a31;border-radius:15px;padding:16px;margin:14px 0;direction:ltr}.muted{color:var(--muted);font-size:13px}.alert{padding:12px 14px;border-radius:13px;background:#101a31;border:1px solid #ffffff18;color:var(--muted);margin:12px 0}.alert.error{color:#ff9ca5;border-color:#ff6b7855}.alert.ok{color:#8af0ba;border-color:#68e0a155}
+.players{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center;margin:16px 0}.player{border-radius:16px;padding:13px;background:#1688db22;border:1px solid #58b8ff66;text-align:center;min-width:0}.player.redp{background:#d94d6022;border-color:#ff6b7866}.player b{display:block;overflow:hidden;text-overflow:ellipsis}.player small{color:var(--muted)}.vs{color:var(--gold);font-weight:1000}
+.scorebar{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin:12px 0}.score{font-size:22px;font-weight:1000}.score.bluec{color:var(--blue)}.score.redc{color:var(--red)}
+.board{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;max-width:650px;margin:18px auto}.tile{aspect-ratio:1/1;border-radius:18px;background:linear-gradient(145deg,#344b78,#1d2c4b);border:2px solid #ffffff20;display:grid;place-items:center;font-size:clamp(27px,7vw,52px);box-shadow:0 7px 0 #0c1426;position:relative;overflow:hidden;user-select:none}.tile:not(:disabled):hover{filter:brightness(1.18)}.tile.open{background:linear-gradient(145deg,#fff,#dce8ff);color:#15213a;border-color:#fff}.tile.matched{background:linear-gradient(145deg,#bdf5d7,#67dba0);color:#123c2c;border-color:#8ef0b8;box-shadow:0 5px 0 #23885b}.tile:disabled{cursor:default;opacity:1}.tile .back{font-size:32px;color:#ffd166}
+.progress{height:9px;background:#0e172b;border-radius:99px;overflow:hidden;flex:1}.progress>div{height:100%;width:0;background:linear-gradient(90deg,#58b8ff,#ffd166);transition:width .3s}
+.phase-title{text-align:center;color:var(--gold);font-weight:900;margin:8px 0}.question-card{background:#101a31;border:1px solid #ffffff20;border-radius:18px;padding:18px;margin-top:14px}.answerbox{font-size:19px;font-weight:800;color:#fff;background:#263657;padding:14px;border-radius:12px;margin:10px 0}
+.footer{text-align:center;color:#8192b6;font-size:11px;margin:14px}.hidden{display:none!important}
+@media(max-width:520px){body{padding:10px}.board{gap:7px}.tile{border-radius:12px}.players{grid-template-columns:1fr auto 1fr}.panel{border-radius:19px}.top{align-items:flex-start}}
+</style>
+</head>
+<body>
+<main class="app">
+  <header class="top">
+    <div class="brand">ROPE <span>BATTLE</span> · <span>SHAPE MATCH</span></div>
+    <div class="status" id="connectionStatus">● غير متصل</div>
+  </header>
+
+  <section class="panel screen active" id="screen-menu">
+    <h1>🧩 لعبة تطابق الأشكال</h1>
+    <p>اقلب بطاقتين في كل دور. إذا كان الشكلان متطابقين يبقيان ظاهرين وتحصل على نقطة وتلعب مرة أخرى. إذا لم يتطابقا يعودان مخفيين وينتقل الدور إلى خصمك. صاحب أكبر عدد من الأزواج يفوز، ثم يطرح سؤالاً على منافسه.</p>
+    <label>اسمك</label><input id="nameInput" maxlength="22" placeholder="اكتب اسم اللاعب">
+    <label>كود الغرفة (اتركه فارغاً لإنشاء غرفة)</label><input id="roomInput" maxlength="5" inputmode="numeric" placeholder="مثال: 17239" dir="ltr">
+    <div class="row"><button class="primary" onclick="createOrJoin()">إنشاء / دخول الغرفة</button></div>
+    <div class="alert" id="menuMessage">أنشئ غرفة وشارك الكود مع صديقك، أو أدخل كوده للانضمام.</div>
+    <button class="secondary" onclick="goPrevGame()">⬅ العودة إلى اللعبة السابقة</button>
+  </section>
+
+  <section class="panel screen" id="screen-lobby">
+    <h1>غرفة اللعب</h1><p>أرسل هذا الكود لصديقك ليدخل إلى نفس الطاولة.</p>
+    <div class="code" id="roomCode">-----</div>
+    <div class="players">
+      <div class="player"><b id="lobbyP1">اللاعب الأول</b><small>🔵 اللاعب 1</small></div><div class="vs">VS</div>
+      <div class="player redp"><b id="lobbyP2">بانتظار اللاعب…</b><small>🔴 اللاعب 2</small></div>
+    </div>
+    <div class="row"><button class="secondary" onclick="copyRoom()">نسخ الكود</button><button class="primary" id="startButton" onclick="startGame()" disabled>ابدأ اللعب</button></div>
+    <div class="alert" id="lobbyMessage">بانتظار اتصال اللاعب الثاني…</div>
+    <button class="secondary" onclick="goPrevGame()">⬅ العودة</button>
+  </section>
+
+  <section class="panel screen" id="screen-game">
+    <h1>🧩 طاولة الأشكال</h1>
+    <div class="players">
+      <div class="player"><b id="p1Name">الأزرق</b><span class="score bluec" id="p1Score">0</span><small id="p1Turn"></small></div>
+      <div class="vs">VS</div>
+      <div class="player redp"><b id="p2Name">الأحمر</b><span class="score redc" id="p2Score">0</span><small id="p2Turn"></small></div>
+    </div>
+    <div class="scorebar"><b id="turnLabel">الدور: —</b><div class="progress"><div id="progressFill"></div></div><b id="pairCount">0 / 8</b></div>
+    <p class="muted" id="gameHint" style="text-align:center">اقلب بطاقتين وابحث عن زوج متطابق.</p>
+    <div class="board" id="board"></div>
+    <div class="alert" id="gameMessage">حظاً موفقاً!</div>
+    <div class="row"><button class="secondary" onclick="goPrevGame()">⬅ اللعبة السابقة</button><button class="secondary" onclick="goNextGame()">اللعبة التالية ➡</button></div>
+  </section>
+
+  <section class="panel screen" id="screen-question">
+    <h1>🏆 انتهت لعبة الأشكال</h1>
+    <div class="players">
+      <div class="player"><b id="finalP1">اللاعب الأول</b><span class="score bluec" id="finalS1">0</span></div><div class="vs">VS</div>
+      <div class="player redp"><b id="finalP2">اللاعب الثاني</b><span class="score redc" id="finalS2">0</span></div>
+    </div>
+    <div class="alert ok" id="winnerBanner"></div>
+    <div id="askerPanel" class="question-card">
+      <h2>✍️ الفائز يطرح سؤالاً</h2>
+      <p class="muted">اكتب سؤالاً للمنافس، ثم أرسله إليه.</p>
+      <textarea id="questionInput" placeholder="اكتب سؤالك هنا..."></textarea>
+      <button class="primary" onclick="sendQuestion()">إرسال السؤال</button>
+    </div>
+    <div id="answerPanel" class="question-card hidden">
+      <h2>❓ سؤال الفائز</h2><div class="answerbox" id="receivedQuestion"></div>
+      <p class="muted">اكتب إجابتك. الفائز سيحكم هل هي صحيحة أم لا.</p>
+      <input id="answerInput" placeholder="اكتب إجابتك هنا...">
+      <button class="blue" onclick="sendAnswer()">إرسال الإجابة</button>
+    </div>
+    <div id="judgePanel" class="question-card hidden">
+      <h2>⚖️ إجابة المنافس</h2><div class="answerbox" id="receivedAnswer"></div>
+      <p class="muted">هل إجابة منافسك صحيحة؟</p>
+      <div class="row"><button class="green" onclick="judgeAnswer(true)">صحيحة ✓</button><button class="red" onclick="judgeAnswer(false)">خاطئة ✕</button></div>
+    </div>
+    <div id="questionResult" class="alert hidden"></div>
+    <div class="row"><button class="secondary" onclick="goPrevGame()">⬅ اللعبة السابقة</button><button class="secondary" onclick="goNextGame()">اللعبة التالية ➡</button></div>
+  </section>
+  <div class="footer">ROPE BATTLE · SHARED TABLE · TWO PLAYERS</div>
+</main>
+<script>
+'use strict';
+const $=id=>document.getElementById(id);
+const PEER_CFG={host:'0.peerjs.com',port:443,path:'/',secure:true,debug:1};
+const SHAPES=['🍎','🚀','🐙','🌙','🎈','🦋','🎸','🍉'];
+let peer=null,conn=null,connected=false,isHost=false,mySlot=null,myName='',roomCode='',state=null,flipTimer=null;
+function show(id){document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));$('screen-'+id).classList.add('active')}
+function setStatus(s,ok=false){$('connectionStatus').textContent=(ok?'🟢 ':'🔴 ')+s}
+function toast(t){$('menuMessage').textContent=t}
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function currentFile(){return location.pathname.split('/').pop()||'game2.html'}
+function gameIndex(){return ['index.html','game1.html','game2.html','game3.html','game4.html'].indexOf(currentFile())}
+function nextGameFile(){let a=['index.html','game1.html','game2.html','game3.html','game4.html'];return a[Math.min(4,Math.max(0,gameIndex())+1)]}
+function prevGameFile(){let a=['index.html','game1.html','game2.html','game3.html','game4.html'];return a[Math.max(0,gameIndex()-1)]}
+function navUrl(file){let q=new URLSearchParams({room:roomCode,slot:mySlot,name:myName,p1:state?.p1||'',p2:state?.p2||''});return file+'?'+q.toString()}
+function saveSession(){sessionStorage.setItem('rb_code',roomCode);sessionStorage.setItem('rb_name',myName);sessionStorage.setItem('rb_slot',mySlot);sessionStorage.setItem('rb_p1',state?.p1||'');sessionStorage.setItem('rb_p2',state?.p2||'');if(state)sessionStorage.setItem('rb_shape_state',JSON.stringify(state))}
+function sendState(){if(!conn?.open||!state)return;conn.send({type:'shape-state',state})}
+function broadcast(){saveSession();if(isHost)sendState();render()}
+function sendAction(action,payload={}){if(!conn?.open){$('gameMessage').textContent='الاتصال غير جاهز. انتظر قليلاً.';return}conn.send({type:'shape-action',action,payload,slot:mySlot})}
+function render(){
+ if(!state)return;
+ $('roomCode').textContent=roomCode;$('lobbyP1').textContent=state.p1;$('lobbyP2').textContent=state.p2||'بانتظار اللاعب…';
+ $('startButton').disabled=!(isHost&&state.p2&&state.status==='lobby');
+ $('p1Name').textContent=state.p1;$('p2Name').textContent=state.p2||'اللاعب الثاني';
+ $('p1Score').textContent=state.scores.p1;$('p2Score').textContent=state.scores.p2;
+ $('p1Turn').textContent=state.turn==='p1'?'دورك الآن':' ';$('p2Turn').textContent=state.turn==='p2'?'دورك الآن':' ';
+ $('turnLabel').textContent='الدور: '+(state.turn==='p1'?state.p1:state.p2||'اللاعب الثاني');
+ $('pairCount').textContent=state.matched.length+' / 8';$('progressFill').style.width=(state.matched.length/8*100)+'%';
+ $('gameMessage').textContent=state.message||'اقلب بطاقتين وابحث عن زوج متطابق.';
+ const board=$('board');board.innerHTML='';
+ state.cards.forEach((card,i)=>{let b=document.createElement('button');b.className='tile'+(card.matched?' matched':card.faceUp?' open':'');b.disabled=card.matched||card.faceUp||state.status!=='playing'||state.turn!==mySlot||state.flipped.length>=2;b.innerHTML=card.matched||card.faceUp?esc(card.shape):'<span class="back">؟</span>';b.setAttribute('aria-label',card.matched||card.faceUp?'بطاقة مكشوفة':'بطاقة مخفية');b.onclick=()=>flipCard(i);board.appendChild(b)});
+ if(state.status==='lobby')show('lobby');
+ else if(state.status==='playing')show('game');
+ else if(state.status==='question')renderQuestion();
+ else if(state.status==='finished')renderQuestion();
+}
+function renderQuestion(){
+ show('question');
+ $('finalP1').textContent=state.p1;$('finalP2').textContent=state.p2;
+ $('finalS1').textContent=state.scores.p1;$('finalS2').textContent=state.scores.p2;
+ let winner=state.winner==='p1'?state.p1:state.p2;
+ $('winnerBanner').textContent='🏆 الفائز: '+winner+' — يطرح السؤال الآن.';
+ $('askerPanel').classList.toggle('hidden',state.questionPhase!=='ask'||state.winner!==mySlot);
+ $('answerPanel').classList.toggle('hidden',state.questionPhase!=='answer'||state.winner===mySlot);
+ $('judgePanel').classList.toggle('hidden',state.questionPhase!=='judge'||state.winner!==mySlot);
+ $('questionResult').classList.toggle('hidden',!['done'].includes(state.questionPhase));
+ if(state.questionPhase==='answer')$('receivedQuestion').textContent=state.question;
+ if(state.questionPhase==='judge')$('receivedAnswer').textContent=state.answer;
+ if(state.questionPhase==='done')$('questionResult').textContent=state.judgment==='correct'?'✅ الفائز اعتبر الإجابة صحيحة.':'❌ الفائز اعتبر الإجابة خاطئة.';
+}
+function makeDeck(){let a=SHAPES.flatMap((shape,i)=>[{id:i*2,shape,faceUp:false,matched:false},{id:i*2+1,shape,faceUp:false,matched:false}]);for(let i=a.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function newState(p1){return{status:'lobby',p1,p2:null,scores:{p1:0,p2:0},turn:'p1',cards:makeDeck(),flipped:[],matched:[],lastMatchSlot:null,winner:null,message:'بانتظار اللاعب الثاني…',questionPhase:'ask',question:'',answer:'',judgment:null}}
+async function createPeer(id){return new Promise((resolve,reject)=>{peer=new Peer(id,PEER_CFG);let done=false;peer.on('open',()=>{if(!done){done=true;resolve()}});peer.on('error',e=>{if(!done){done=true;reject(e)}});peer.on('connection',c=>{if(!isHost)return;if(conn?.open){c.send({type:'error',message:'الغرفة ممتلئة'});c.close();return}attach(c)});peer.on('disconnected',()=>{setStatus('إعادة الاتصال…');try{peer.reconnect()}catch(e){}})})}
+function attach(c){conn=c;c.on('open',()=>{connected=true;setStatus('Connected (WebRTC)',true);if(isHost){c.send({type:'shape-state',state});render() }else c.send({type:'hello',name:myName,slot:mySlot})});c.on('data',msg=>{if(isHost)hostMessage(msg,c);else guestMessage(msg)});c.on('close',()=>{connected=false;setStatus('انقطع الاتصال')})}
+function hostMessage(msg,c){
+ if(msg.type==='hello'){if(state.p2&&state.p2!==String(msg.name||'')){c.send({type:'error',message:'الغرفة ممتلئة'});return}state.p2=String(msg.name||'اللاعب الثاني').slice(0,22);state.message='اللاعبان متصلان. ابدأوا اللعب!';broadcast();return}
+ if(msg.type!=='shape-action'||!['p1','p2'].includes(msg.slot))return;
+ const slot=msg.slot;
+ if(msg.action==='flip'){hostFlip(slot,Number(msg.payload.index));return}
+ if(msg.action==='question'){if(state.status!=='question'||slot!==state.winner||state.questionPhase!=='ask')return;let q=String(msg.payload.text||'').trim().slice(0,500);if(!q)return;state.question=q;state.questionPhase='answer';broadcast();return}
+ if(msg.action==='answer'){if(state.status!=='question'||slot===state.winner||state.questionPhase!=='answer')return;let a=String(msg.payload.text||'').trim().slice(0,500);if(!a)return;state.answer=a;state.questionPhase='judge';broadcast();return}
+ if(msg.action==='judge'){if(state.status!=='question'||slot!==state.winner||state.questionPhase!=='judge')return;state.judgment=msg.payload.correct?'correct':'wrong';state.questionPhase='done';broadcast();return}
+}
+function guestMessage(msg){if(!msg)return;if(msg.type==='shape-state'){state=msg.state;saveSession();render()}else if(msg.type==='navigate'){location.href=navUrl(msg.game||nextGameFile())}else if(msg.type==='navigate-request'){if(isHost){const target=msg.game||nextGameFile();if(conn?.open)conn.send({type:'navigate',game:target});setTimeout(()=>location.href=navUrl(target),300)}}else if(msg.type==='error'){toast(msg.message)}}
+function hostFlip(slot,index){
+ if(state.status!=='playing'||slot!==state.turn||!Number.isInteger(index)||index<0||index>=state.cards.length)return;
+ if(state.flipped.length>=2||state.cards[index].matched||state.cards[index].faceUp)return;
+ state.cards[index].faceUp=true;state.flipped.push(index);state.message=(state.flipped.length===1?'اختر البطاقة الثانية.':'جاري فحص الشكلين…');broadcast();
+ if(state.flipped.length===2){let [a,b]=state.flipped;if(state.cards[a].shape===state.cards[b].shape){state.cards[a].matched=state.cards[b].matched=true;state.matched.push(a,b);state.scores[slot]++;state.lastMatchSlot=slot;state.flipped=[];state.message='🎉 تطابق صحيح! بقي الشكلان ظاهرين، والعب مرة أخرى.';if(state.matched.length===16){state.winner=state.scores.p1===state.scores.p2?(state.lastMatchSlot||'p1'):(state.scores.p1>state.scores.p2?'p1':'p2');state.status='question';state.questionPhase='ask';state.message='انتهت اللعبة! الفائز يكتب سؤالاً للمنافس.'}broadcast()}
+ else{state.message='لم يتطابق الشكلان. سينتقل الدور بعد لحظة.';broadcast();clearTimeout(flipTimer);flipTimer=setTimeout(()=>{if(!state||state.status!=='playing')return;state.cards[a].faceUp=false;state.cards[b].faceUp=false;state.flipped=[];state.turn=slot==='p1'?'p2':'p1';state.message='الدور الآن: '+(state.turn==='p1'?state.p1:state.p2);broadcast()},1000)}}
+}
+function flipCard(index){if(mySlot!==state.turn||state.flipped.length>=2)return;if(isHost)hostFlip(mySlot,index);else sendAction('flip',{index})}
+function startGame(){if(!isHost||!state.p2||state.status!=='lobby')return;state.status='playing';state.turn='p1';state.message='ابدأ بقلب بطاقتين.';broadcast()}
+function sendQuestion(){let q=$('questionInput').value.trim();if(!q){$('questionInput').focus();return}if(isHost){state.question=q;state.questionPhase='answer';broadcast()}else sendAction('question',{text:q})}
+function sendAnswer(){let a=$('answerInput').value.trim();if(!a){$('answerInput').focus();return}if(isHost){state.answer=a;state.questionPhase='judge';broadcast()}else sendAction('answer',{text:a})}
+function judgeAnswer(correct){if(isHost){state.judgment=correct?'correct':'wrong';state.questionPhase='done';broadcast()}else sendAction('judge',{correct})}
+async function createOrJoin(){
+ if(location.protocol==='file:'){toast('للاتصال بين جهازين افتح الموقع عبر HTTPS أو localhost.');return}
+ let u=new URLSearchParams(location.search),qCode=u.get('room')||$('roomInput').value.trim(),slot=u.get('slot')||'',name=u.get('name')||$('nameInput').value.trim()||'Player';
+ if(qCode&&!/^\d{5}$/.test(qCode)){toast('كود الغرفة يجب أن يتكون من 5 أرقام.');return}
+ myName=name.slice(0,22);roomCode=qCode||String(Math.floor(10000+Math.random()*90000));mySlot=slot|| (qCode?'p2':'p1');isHost=mySlot==='p1';
+ if(isHost){state=newState(myName);saveSession();try{await createPeer('ropebattle-'+roomCode+'-g2')}catch(e){toast('تعذر إنشاء الغرفة: '+(e.message||e));return}setStatus('بانتظار اللاعب الثاني');render();toast('تم إنشاء الغرفة '+roomCode+' — شارك الكود مع صديقك')}
+ else{try{await createPeer('ropebattle-'+roomCode+'-guest-g2-'+Math.random().toString(36).slice(2,7))}catch(e){toast('تعذر الاتصال بخدمة PeerJS');return}setStatus('جارٍ الاتصال…');let c=peer.connect('ropebattle-'+roomCode+'-g2',{reliable:true});attach(c);}
+}
+function copyRoom(){if(navigator.clipboard)navigator.clipboard.writeText(roomCode).then(()=>{$('lobbyMessage').textContent='تم نسخ كود الغرفة.'});else $('lobbyMessage').textContent='كود الغرفة: '+roomCode}
+function coordinatedNavigate(target){
+ if(!roomCode){location.href=target;return}
+ if(isHost){if(conn?.open)conn.send({type:'navigate',game:target});setTimeout(()=>location.href=navUrl(target),300)}
+ else if(conn?.open){conn.send({type:'navigate-request',game:target});$('gameMessage').textContent='نطلب من المضيف نقل اللاعبين معاً…'}
+ else location.href=navUrl(target);
+}
+function goPrevGame(){coordinatedNavigate(prevGameFile())}
+function goNextGame(){coordinatedNavigate(nextGameFile())}
+function boot(){
+ let u=new URLSearchParams(location.search),code=u.get('room');
+ if(code){$('roomInput').value=code;$('nameInput').value=u.get('name')||'';createOrJoin()}
+}
+window.addEventListener('beforeunload',()=>{clearTimeout(flipTimer);try{conn?.close();peer?.destroy()}catch(e){}});
+boot();
+</script>
+</body>
+</html>

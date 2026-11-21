@@ -109,9 +109,9 @@ textarea{min-height:96px;resize:vertical}
 <div class="score center-card"><div>ROUND <b id="roundNum">1</b> • <span id="diffLabel">Easy</span></div><div class="timer" id="timer">⏱ 45</div><div class="muted" id="turnLabel">Master: —</div></div>
 <div class="score red"><span style="font-size:32px">🧑‍🦱</span><div><h3 id="gP2Name">P2</h3><p>Pulls: <b id="gP2Score">0</b> / <span class="winNeed">5</span> • <span id="p2Role">—</span></p></div><div class="pts" id="gP2Pts">0</div></div>
 </div>
+<div id="phaseBox" style="margin-top:14px"></div>
 <div class="arena"><div class="arena-top"><div class="center-line"></div><div class="player" id="player1El" style="left:22%"><span class="char">🧑‍🦰</span><span class="name" id="arenaP1">P1</span></div><div class="player" id="player2El" style="left:78%"><span class="char">🧑‍🦱</span><span class="name" id="arenaP2">P2</span></div><div class="rope-wrap" id="ropeWrap"><div class="rope"></div></div><div class="grass"></div></div>
 <div class="arena-bottom"><div class="stat"><b id="ropePosLabel">0</b><span>Rope</span></div><div class="stat"><b id="modeLabel">Master</b><span>Mode</span></div><div class="stat"><b id="codeLabel">-----</b><span>Room</span></div><div class="stat"><b id="streakLabel">—</b><span>Last</span></div></div></div>
-<div id="phaseBox" style="margin-top:14px"></div>
 <div class="navbar"><button class="btn btn-ghost" onclick="goPrevGame()" disabled>⬅ BACK</button><button class="btn btn-gold" onclick="goNextGame()">▶️ NEXT GAME</button><button class="btn btn-ghost" onclick="leaveRoom()">🏳️ Leave</button></div>
 </section>
 
@@ -308,24 +308,30 @@ function renderMath(box){
  let g=state.game;
  if(!g.mathQ||g.mathForRound!==g.round){
    if(isHost){g.mathQ=genMath();g.mathQ.qid=String(Date.now())+'-'+Math.random().toString(36).slice(2,8);g.mathForRound=g.round;g.mathQ.deadline=Date.now()+10000;g.mathQ.timeoutTarget=g.timeoutTarget||0;broadcast();startMathClock();return}
-   box.innerHTML='<div class="card" style="text-align:center">⏳ Waiting for the next shared question…</div>';return;
+   box.innerHTML='<div class="card" style="text-align:center">⏳ في انتظار السؤال التالي…</div>';return;
  }
  const m=g.mathQ, remaining=Math.max(0,Math.ceil((m.deadline-Date.now())/1000));
- box.innerHTML=`<div class="qcard" style="text-align:center">
-   <span class="tag">🧮 SPEED CAPTCHA • ${m.level===1?'EASY':m.level===2?'MEDIUM':'HARD'}</span>
-   <div style="font-size:16px;font-weight:800;margin-top:10px">السؤال نفسه للاعبين في نفس اللحظة</div>
-   <h3 style="font-size:clamp(36px,8vw,58px);margin:12px 0">${esc(m.q)}</h3>
-   <div style="font-size:42px;font-weight:1000;color:#ffc93c" id="mathCountdown">${remaining}</div>
-   <div style="color:#64748b;font-size:12px;margin-bottom:12px">ثوانٍ متبقية</div>
-   <form onsubmit="event.preventDefault();answerMathFromInput()">
-    <input id="mathAnswerInput" inputmode="numeric" autocomplete="off" placeholder="اكتب الإجابة…" style="width:100%;max-width:300px;text-align:center;font-size:24px;font-weight:900;padding:13px;border-radius:14px;border:2px solid #cbd5e1;color:#111">
-    <button class="btn btn-gold" type="submit" style="margin:10px auto 0;display:block">إرسال الإجابة</button>
-   </form>
-   <div id="mathFeedback" class="muted" style="min-height:24px;margin-top:8px">أجب بسرعة! الإجابة الخاطئة لا تُقصيك.</div>
-   <div class="muted" style="font-size:12px">🔵 ${esc(state.p1)}: ينافس الآن &nbsp; 🔴 ${esc(state.p2||'اللاعب 2')}: ينافس الآن</div>
+ box.innerHTML=`<div class="qcard" style="text-align:center;padding:14px">
+   <span class="tag">🧮 ${m.level===1?'سهل':m.level===2?'متوسط':'صعب'}</span>
+   <div style="font-size:15px;font-weight:800;margin-top:8px">اختار الجواب الصحيح بسرعة!</div>
+   <h3 style="font-size:clamp(34px,8vw,52px);margin:8px 0">${esc(m.q)}</h3>
+   <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;max-width:420px;margin:0 auto 10px">
+    ${m.opts.map((v,i)=>`<button type="button" class="btn btn-blue math-choice" style="font-size:22px;font-weight:1000;padding:13px 8px" onclick="chooseMath(${Number(v)},this)">${Number(v)}</button>`).join('')}
+   </div>
+   <div style="font-size:34px;font-weight:1000;color:#ffc93c" id="mathCountdown">${remaining}</div>
+   <div style="color:#64748b;font-size:12px;margin-bottom:6px">ثوانٍ متبقية</div>
+   <div id="mathFeedback" class="muted" style="min-height:24px;margin-top:6px">أول لاعب يختار الجواب الصحيح يجرّ الحبل إلى جهته!</div>
+   <div class="muted" style="font-size:12px">🔵 ${esc(state.p1)} &nbsp; مقابل &nbsp; 🔴 ${esc(state.p2||'اللاعب 2')}</div>
  </div>`;
 }
-function answerMathFromInput(){const el=$('mathAnswerInput');if(!el)return;const v=el.value.trim();if(!/^\d+$/.test(v)){const f=$('mathFeedback');if(f)f.textContent='اكتب رقماً صحيحاً.';return}answerMath(Number(v))}
+function chooseMath(v,btn){
+ const buttons=document.querySelectorAll('.math-choice');
+ buttons.forEach(b=>b.disabled=true);
+ const f=$('mathFeedback');if(f)f.textContent='⏳ اخترت '+v+' — نتحقق من الإجابة…';
+ if(btn){btn.style.outline='3px solid #fbbf24';btn.style.outlineOffset='2px'}
+ answerMath(Number(v));
+}
+function answerMathFromInput(){/* answers are selected from the four choices now */}
 function startMathClock(){
  clearInterval(timerInt);
  timerInt=setInterval(()=>{
@@ -340,7 +346,7 @@ function answerMath(v){
  if(!state||state.status!=='playing'||state.mode!=='math'||!state.game.mathQ)return;
  if(Date.now()>state.game.mathQ.deadline){if(isHost)resolveMathTimeout();return}
  if(isHost){if(Number(v)===state.game.mathQ.ans)resolveMathWinner(mySlot);else resolveMathSkip()}
- else {const sent=sendAction('answer-math',{value:Number(v),qid:state.game.mathQ.qid});if(sent){const input=$('mathAnswerInput');const btn=input?.form?.querySelector('button[type=submit]');if(btn){btn.disabled=true;btn.textContent='تم إرسال الإجابة…'}}}
+ else {sendAction('answer-math',{value:Number(v),qid:state.game.mathQ.qid})}
 }
 (async()=>{let r=readPersisted();if(r.code&&r.slot){
   roomCode=r.code;mySlot=r.slot;myName=r.name||'Player';isHost=(r.slot==='p1');

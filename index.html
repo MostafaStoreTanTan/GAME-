@@ -237,7 +237,7 @@ if(msg.action==='submit-question'){if(!['playing','challenge'].includes(state.st
 if(msg.action==='submit-answer'){if(!['playing','challenge'].includes(state.status)||state.game.phase!=='answer')return;if(msg.slot===(state.game.master===0?'p1':'p2'))return;state.game.currentAns={text:String(msg.payload.text||'').trim(),by:msg.slot==='p1'?0:1};state.game.phase='judge';broadcast();return}
 if(msg.action==='judge'){if(!['playing','challenge'].includes(state.status)||state.game.phase!=='judge')return;if(msg.slot!==(state.game.master===0?'p1':'p2'))return;applyJudge(!!msg.payload.correct);return}
 if(msg.action==='answer-math'){
- if(state.status!=='playing'||state.game.mode!=='math'||!state.game.mathQ)return;
+ if(state.status!=='playing'||state.mode!=='math'||!state.game.mathQ)return;
  const g=state.game, q=g.mathQ, slot=msg.slot, value=Number(msg.payload?.value);
  if(slot!=='p1'&&slot!=='p2')return;
  if(msg.payload?.qid!==q.qid)return;
@@ -340,7 +340,7 @@ function answerMath(v){
  if(!state||state.status!=='playing'||state.mode!=='math'||!state.game.mathQ)return;
  if(Date.now()>state.game.mathQ.deadline){if(isHost)resolveMathTimeout();return}
  if(isHost){if(Number(v)===state.game.mathQ.ans)resolveMathWinner(mySlot);else resolveMathSkip()}
- else {sendAction('answer-math',{value:Number(v),qid:state.game.mathQ.qid})}
+ else {const sent=sendAction('answer-math',{value:Number(v),qid:state.game.mathQ.qid});if(sent){const input=$('mathAnswerInput');const btn=input?.form?.querySelector('button[type=submit]');if(btn){btn.disabled=true;btn.textContent='تم إرسال الإجابة…'}}}
 }
 (async()=>{let r=readPersisted();if(r.code&&r.slot){
   roomCode=r.code;mySlot=r.slot;myName=r.name||'Player';isHost=(r.slot==='p1');

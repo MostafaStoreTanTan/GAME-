@@ -69,24 +69,24 @@ textarea{min-height:96px;resize:vertical}
 <section id="screen-menu" class="screen show">
 <div class="card">
 <h1>ROPE<br><span>BATTLE</span> 🪢</h1>
-<p class="muted" style="margin:10px 0">Win a challenge, pull the rope. Question Master writes the question. Opponent answers. <b style="color:#fff">Only the Master judges — never auto-judged.</b> Host is authoritative. Guest sends actions only.</p>
-<label>Your Player Name</label>
-<input id="playerName" placeholder="e.g. Adam" maxlength="20">
-<div class="row">
-<div><label>Game Mode</label><select id="gameMode"><option value="master">✍️ Question Master</option><option value="math">🧮 Quick Math</option></select></div>
-<div><label>Rope Pulls To Win</label><select id="winTarget"><option value="3">3 — Quick</option><option value="5" selected>5 — Classic</option><option value="7">7 — Epic</option></select></div>
+<p class="muted" style="margin:12px 0 20px;text-align:center">Enter your name, then create a room or join a friend's room.</p>
+<label>Your Name</label>
+<input id="playerName" placeholder="Write your name" maxlength="20" autocomplete="nickname">
+<div style="display:grid;gap:12px;margin-top:18px">
+<button class="btn btn-blue" onclick="createRoom()">➕ Create a Room</button>
+<button class="btn btn-gold" onclick="showScreen('join')">🚪 Join a Room</button>
 </div>
-<div class="row" style="margin-top:14px"><button class="btn btn-blue" onclick="createRoom()">➕ CREATE ROOM</button><button class="btn btn-gold" onclick="showScreen('join')">🚪 JOIN ROOM</button></div>
-<div class="navbar"><button class="btn btn-gold" onclick="goNextGame()">▶️ NEXT GAME — Letter Challenge</button></div>
-<div class="alert">🌐 <b>How it works:</b> Host clicks CREATE ROOM → gets a 5-digit code → shares it. Guest opens this page on another phone, enters the code → PeerJS connects directly to the host. <b>Connected</b> appears only after WebRTC <code>open</code>. No Firebase, no database, no simulated connection.</div>
+<select id="gameMode" class="hidden"><option value="master" selected>Question Master</option></select>
+<select id="winTarget" class="hidden"><option value="5" selected>5</option></select>
+<div class="alert" style="margin-top:18px">Create a room and share the code with your friend. When your friend joins, the game starts automatically.</div>
 <div class="alert danger hidden" id="reconnectBanner">🔄 Reconnecting to your previous room…</div>
 </div>
 </section>
 
 <section id="screen-join" class="screen">
-<div class="card" style="max-width:560px;margin:0 auto"><h2>🚪 Join Room</h2><p class="muted">Enter the host's 5-digit code. If the room does not exist you will see a clear error.</p>
-<label>Room Code (5 digits)</label><input id="joinCode" placeholder="12345" maxlength="5" inputmode="numeric">
-<label>Your Name (Player 2)</label><input id="joinName" placeholder="e.g. Salma" maxlength="20">
+<div class="card" style="max-width:560px;margin:0 auto"><h2>🚪 Join a Room</h2><p class="muted">Enter your name and the room code shared by the host.</p>
+<label>Your Name</label><input id="joinName" placeholder="Write your name" maxlength="20" autocomplete="nickname">
+<label>Room Code</label><input id="joinCode" placeholder="5-digit code" maxlength="5" inputmode="numeric">
 <div id="joinError" class="alert danger hidden"></div>
 <button class="btn btn-gold" style="margin-top:14px" onclick="joinRoom()">✅ Join Room</button>
 <button class="btn btn-ghost" style="margin-top:10px" onclick="showScreen('menu')">← Back</button></div>
@@ -98,7 +98,7 @@ textarea{min-height:96px;resize:vertical}
 <div style="display:flex;gap:10px"><button class="btn btn-ghost" onclick="copyCode()">📋 Copy Code</button><button class="btn btn-ghost" onclick="shareCode()">🔗 Share</button></div>
 <div class="players" style="margin-top:14px"><div class="pbox blue"><div style="font-size:36px">🧑‍🦰</div><h3 id="lobbyP1">Player 1</h3><p>HOST</p></div><div class="pbox red" id="lobbyP2Box" style="opacity:.6"><div style="font-size:36px">👤</div><h3 id="lobbyP2">Waiting…</h3><p id="lobbyP2Status">Waiting for Player 2…</p></div></div>
 <div class="alert" id="lobbyAlert"></div>
-<button class="btn btn-green" id="startBtn" disabled onclick="requestStart()">🚀 Start Game</button>
+<button class="btn btn-green hidden" id="startBtn" disabled onclick="requestStart()">🚀 Start Game</button>
 <div class="navbar"><button class="btn btn-ghost" onclick="goPrevGame()" id="lobbyBackBtn" disabled>⬅ BACK</button><button class="btn btn-gold" onclick="goNextGame()">▶️ NEXT GAME</button></div>
 <button class="btn btn-ghost" style="margin-top:10px" onclick="leaveRoom()">← Leave Room</button></div>
 </section>
@@ -141,7 +141,7 @@ re-creates a Peer with the SAME host Peer ID and auto-reconnects. Host re-broadc
 Connection is only "Connected" after conn.on('open').
 ==================================================================================== */
 const $=id=>document.getElementById(id);
-const GAMES=['index.html','game1.html','game2.html','game3.html','game4.html'];
+const GAMES=['index.html','game1.html','game2.html','game3.html'];
 const PEER_CFG={host:'0.peerjs.com',port:443,path:'/',secure:true,debug:1};
 function currentFile(){let p=location.pathname.split('/').pop()||'index.html';return p.split('?')[0]||'index.html'}
 function gameIndex(){let i=GAMES.indexOf(currentFile());return i<0?0:i}
@@ -225,11 +225,11 @@ function sendAction(action,payload){if(!conn||!conn.open){toast('Not connected y
 function newState(p1,mode,winTarget){return{code:roomCode,gameId:'rope',mode,winTarget,status:'lobby',p1:p1,p2:null,game:{rope:0,score1:0,score2:0,round:1,master:0,phase:'write',difficulty:'Easy',currentQ:null,currentAns:null,lastResult:'—',mathQ:null,mathForRound:0,timeoutTarget:0,lastWinner:null}}}
 function broadcast(){saveSession();if(isHost)sendState();renderAll()}
 function renderAll(){if(!state)return;$('roomCodeDisplay').textContent=state.code;$('codeLabel').textContent=state.code;if(state.status==='lobby')renderLobby();else if(state.status==='playing')renderGame();else if(state.status==='finished')showWin()}
-async function createRoom(){if(location.protocol==='file:'){toast('For online multiplayer, open this game through HTTPS hosting or http://localhost, not by double-clicking the file.');return}myName=$('playerName').value.trim()||'Player 1';roomCode=String(Math.floor(10000+Math.random()*90000));mySlot='p1';isHost=true;let mode=$('gameMode').value,wt=parseInt($('winTarget').value);state=newState(myName,mode,wt);saveSession();try{await makePeer('ropebattle-'+roomCode)}catch(e){toast('❌ Could not start signaling. Check internet and reload.');return}setConnUI(false,'Waiting for Player 2…');$('lobbyLine').textContent='🌐 Share this code. Guest must enter it on their device.';$('lobbyAlert').className='alert';$('lobbyAlert').innerHTML='⏳ <b>Waiting for Player 2.</b> You are the HOST. State is authoritative on this device.';$('startBtn').disabled=true;showScreen('lobby');renderLobby();play(700);toast('Room '+roomCode+' created')}
-async function joinRoom(){if(location.protocol==='file:'){toast('For online multiplayer, open this game through HTTPS hosting or http://localhost, not by double-clicking the file.');return}let code=$('joinCode').value.trim(),name=$('joinName').value.trim()||'Player 2';let err=$('joinError');err.classList.add('hidden');if(!/^\d{5}$/.test(code)){err.textContent='❌ Enter a valid 5-digit code.';err.classList.remove('hidden');return}myName=name;roomCode=code;mySlot='p2';isHost=false;saveSession();try{await makePeer('ropebattle-'+code+'-guest-'+Math.random().toString(36).slice(2,7))}catch(e){toast('❌ Signaling failed. Check internet.');return}setConnUI(false,'Connecting…');try{connectToHost('ropebattle-'+code,c=>c.send({type:'action',action:'hello',payload:{name:myName},slot:'p2'}),()=>{err.textContent='❌ Room not found. Check the code and make sure the host is still in the room.';err.classList.remove('hidden');setConnUI(false,'Room not found')})}catch(e){err.textContent='❌ '+e.message;err.classList.remove('hidden')}}
+async function createRoom(){if(location.protocol==='file:'){toast('For online multiplayer, open this game through HTTPS hosting or http://localhost, not by double-clicking the file.');return}myName=$('playerName').value.trim();if(!myName){toast('Please enter your name first.');$('playerName').focus();return}roomCode=String(Math.floor(10000+Math.random()*90000));mySlot='p1';isHost=true;let mode=$('gameMode').value,wt=parseInt($('winTarget').value);state=newState(myName,mode,wt);saveSession();try{await makePeer('ropebattle-'+roomCode)}catch(e){toast('❌ Could not start signaling. Check internet and reload.');return}setConnUI(false,'Waiting for Player 2…');$('lobbyLine').textContent='🌐 Share this code. Guest must enter it on their device.';$('lobbyAlert').className='alert';$('lobbyAlert').innerHTML='⏳ <b>Waiting for Player 2.</b> You are the HOST. State is authoritative on this device.';$('startBtn').disabled=true;showScreen('lobby');renderLobby();play(700);toast('Room '+roomCode+' created')}
+async function joinRoom(){if(location.protocol==='file:'){toast('For online multiplayer, open this game through HTTPS hosting or http://localhost, not by double-clicking the file.');return}let code=$('joinCode').value.trim(),name=$('joinName').value.trim();let err=$('joinError');err.classList.add('hidden');if(!name){err.textContent='Please enter your name.';err.classList.remove('hidden');$('joinName').focus();return}if(!/^\d{5}$/.test(code)){err.textContent='❌ Enter a valid 5-digit code.';err.classList.remove('hidden');return}myName=name;roomCode=code;mySlot='p2';isHost=false;saveSession();try{await makePeer('ropebattle-'+code+'-guest-'+Math.random().toString(36).slice(2,7))}catch(e){toast('❌ Signaling failed. Check internet.');return}setConnUI(false,'Connecting…');try{connectToHost('ropebattle-'+code,c=>c.send({type:'action',action:'hello',payload:{name:myName},slot:'p2'}),()=>{err.textContent='❌ Room not found. Check the code and make sure the host is still in the room.';err.classList.remove('hidden');setConnUI(false,'Room not found')})}catch(e){err.textContent='❌ '+e.message;err.classList.remove('hidden')}}
 function handleAction(msg,c){
 if(!msg||msg.type!=='action')return;
-if(msg.action==='hello'){let incoming=String(msg.payload?.name||'Player 2').slice(0,24);if(state.p2&&state.p2!==incoming){c.send({type:'error',message:'Room is full.'});return}if(state.status==='lobby'||state.p2===incoming){state.p2=incoming;broadcast();return}c.send({type:'error',message:'Match already started; reconnect using the same player name.'});return}
+if(msg.action==='hello'){let incoming=String(msg.payload?.name||'Player 2').slice(0,24);if(state.p2&&state.p2!==incoming){c.send({type:'error',message:'Room is full.'});return}if(state.status==='lobby'||state.p2===incoming){let firstJoin=!state.p2;state.p2=incoming;broadcast();if(firstJoin){$('lobbyAlert').className='alert ok';$('lobbyAlert').innerHTML='✅ Player joined. Starting the game…';setTimeout(()=>{if(isHost&&state&&state.status==='lobby'&&state.p2){state.status='playing';state.game.phase='write';broadcast();}},1200)}return}c.send({type:'error',message:'Match already started; reconnect using the same player name.'});return}
 if(msg.action==='request-navigate'){let requested=msg.payload&&msg.payload.game;let target=(requested===nextGameFile()||requested===prevGameFile())?requested:nextGameFile();if(conn&&conn.open)conn.send({type:'navigate',game:target});setTimeout(()=>{location.href=buildNavUrl(target)},350);return}
 if(msg.slot!=='p1'&&msg.slot!=='p2')return;
 if(msg.action==='start'){if(msg.slot!=='p1')return;if(!state.p2)return;state.status='playing';state.game.phase='write';if(state.mode==='math'){state.game.mathQ=genMath();state.game.mathQ.qid=String(Date.now())+'-'+Math.random().toString(36).slice(2,8);state.game.mathForRound=state.game.round;state.game.mathQ.deadline=Date.now()+10000;}broadcast();if(state.mode==='math')startMathClock();return}
@@ -290,7 +290,7 @@ function requestStart(){
 }
 function requestRematch(){if(isHost){state.status='playing';state.game={rope:0,score1:0,score2:0,round:1,master:0,phase:'write',difficulty:'Easy',currentQ:null,currentAns:null,lastResult:'—',mathQ:null,mathForRound:0};broadcast()}else sendAction('rematch',{})}
 function leaveRoom(){try{conn&&conn.close()}catch(e){}try{peer&&peer.destroy()}catch(e){}state=null;roomCode='';mySlot=null;sessionStorage.removeItem('rb_code');showScreen('menu')}
-function renderLobby(){$('lobbyP1').textContent=state.p1+' (Host)';$('lobbyP2').textContent=state.p2||'Waiting…';$('lobbyP2Box').style.opacity=state.p2?1:.6;$('lobbyP2Status').textContent=state.p2?'✅ Connected':'Waiting for Player 2…';$('startBtn').disabled=!state.p2;$('lobbyAlert').className='alert '+(state.p2?'ok':'');$('lobbyAlert').innerHTML=state.p2?'✅ <b>Both connected.</b> Host can start.':'⏳ Waiting…';showScreen('lobby')}
+function renderLobby(){$('lobbyP1').textContent=state.p1+' (Host)';$('lobbyP2').textContent=state.p2||'Waiting…';$('lobbyP2Box').style.opacity=state.p2?1:.6;$('lobbyP2Status').textContent=state.p2?'✅ Connected':'Waiting for Player 2…';$('startBtn').disabled=!state.p2;$('lobbyAlert').className='alert '+(state.p2?'ok':'');$('lobbyAlert').innerHTML=state.p2?'✅ <b>Both players connected.</b> Starting automatically…':'⏳ Waiting for your friend to join…';showScreen('lobby')}
 function renderGame(){if(!state||!state.game)return;let g=state.game;$('gP1Name').textContent=state.p1;$('gP2Name').textContent=state.p2||'P2';$('arenaP1').textContent=state.p1;$('arenaP2').textContent=state.p2||'P2';$('gP1Score').textContent=g.score1;$('gP2Score').textContent=g.score2;$('gP1Pts').textContent=g.score1;$('gP2Pts').textContent=g.score2;$('roundNum').textContent=g.round;$('diffLabel').textContent=g.difficulty;$('ropePosLabel').textContent=g.rope>0?'+'+g.rope:g.rope;$('modeLabel').textContent=state.mode==='math'?'🧮 Math':'✍️ Master';$('streakLabel').textContent=g.lastResult||'—';document.querySelectorAll('.winNeed').forEach(e=>e.textContent=state.winTarget);let masterName=g.master===0?state.p1:state.p2;$('turnLabel').textContent='Master: '+masterName;$('p1Role').textContent=g.master===0?'👑 MASTER':'✏️ ANSWERER';$('p2Role').textContent=g.master===1?'👑 MASTER':'✏️ ANSWERER';let pct=50+(g.rope/state.winTarget)*38;$('ropeWrap').style.transform='translate(-50%,-50%) translateX('+((pct-50)*6)+'px)';$('player1El').style.left=(22+(g.rope/state.winTarget)*-10)+'%';$('player2El').style.left=(78+(g.rope/state.winTarget)*10)+'%';if(!$('screen-game').classList.contains('show'))showScreen('game');renderPhase()}
 function isMasterMe(){return mySlot===(state.game.master===0?'p1':'p2')}
 function isAnswererMe(){return mySlot===(state.game.master===0?'p2':'p1')}
